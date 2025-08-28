@@ -40,7 +40,7 @@ namespace RaidSense.Server.Extensions
                         ValidAudience = config["JWT:Audience"],
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(config["JWT:SigningKey"])),
+                            Encoding.UTF8.GetBytes(config["JWT:SigningKey"]!)),
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero
                     };
