@@ -5,14 +5,14 @@ namespace RaidSense.Server.Mappers
 {
     public static class AuthMapper
     {
-        public static AuthDto ToAuthDto(this User user, string token)
+        public static AuthDto ToAuthDto(this User user, string accessToken)
         {
             return new AuthDto
             {
                 Id = user.Id,
                 Username = user.UserName!,
                 Email = user.Email!,
-                Token = token
+                AccessToken = accessToken
             };
         }
     }

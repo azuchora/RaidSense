@@ -5,6 +5,7 @@ using System.Text;
 using RaidSense.Server.Interfaces;
 using RaidSense.Server.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
 
 namespace RaidSense.Server.Services
 {
@@ -21,7 +22,7 @@ namespace RaidSense.Server.Services
             _userManager = userManager;
         }
 
-        public async Task<string> CreateTokenAsync(User user)
+        public async Task<string> CreateAccessTokenAsync(User user)
         {
             var claims = new List<Claim>
             {
@@ -41,7 +42,7 @@ namespace RaidSense.Server.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddMinutes(10),
                 SigningCredentials = creds,
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"]
@@ -50,6 +51,39 @@ namespace RaidSense.Server.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        public RefreshToken GenerateRefreshToken(string ipAddress)
+        {
+            var randomNumber = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+
+            return new RefreshToken
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                Expires = DateTime.UtcNow.AddDays(7),
+                Created = DateTime.UtcNow,
+                CreatedByIp = ipAddress,
+            };
+        }
+
+        public void SetRefreshTokenCookie(HttpResponse response, RefreshToken refreshToken)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = refreshToken.Expires
+            };
+
+            response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
+        }
+
+        public void DeleteRefreshTokenCookie(HttpResponse response)
+        {
+            response.Cookies.Delete("refreshToken");
         }
     }
 }
