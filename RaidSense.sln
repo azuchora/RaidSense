@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34928.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaidSense.Server", "RaidSense.Server\RaidSense.Server.csproj", "{5516BD28-6684-493F-A30E-1E5530ABAA4F}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "raidsense.client", "raidsense.client\raidsense.client.esproj", "{CA572C17-7B85-44FE-9047-1568508B2BB0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6AEE965E-6B7E-453A-B485-D6D29BF5CD3F}
+	EndGlobalSection
+EndGlobal
