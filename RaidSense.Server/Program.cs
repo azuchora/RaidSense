@@ -18,8 +18,6 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
-await app.SeedRolesAsync();
-await app.MigrateDbAsync();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -38,5 +36,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
+
+await app.SeedRolesAsync();
+await app.MigrateDbAsync();
 
 app.Run();
