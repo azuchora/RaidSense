@@ -4,6 +4,6 @@ namespace RaidSense.Server.Interfaces
 {
     public interface ITokenService
     {
-        Task<string> CreateToken(User user);
+        Task<string> CreateTokenAsync(User user);
     }
 }

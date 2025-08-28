@@ -21,7 +21,7 @@ namespace RaidSense.Server.Services
             _userManager = userManager;
         }
 
-        public async Task<string> CreateToken(User user)
+        public async Task<string> CreateTokenAsync(User user)
         {
             var claims = new List<Claim>
             {
