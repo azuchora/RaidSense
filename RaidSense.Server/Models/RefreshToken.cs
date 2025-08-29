@@ -1,5 +1,8 @@
-﻿namespace RaidSense.Server.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace RaidSense.Server.Models
 {
+    //[Table("RefreshTokens")]
     public class RefreshToken
     {
         public int Id { get; set; }

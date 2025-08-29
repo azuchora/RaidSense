@@ -15,6 +15,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IBattlemetricsService, BattlemetricsService>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
+builder.Services.AddHttpClient<IBattlemetricsService, BattlemetricsService>();
 
 var app = builder.Build();
 

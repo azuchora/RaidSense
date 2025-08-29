@@ -53,7 +53,7 @@ namespace RaidSense.Server.Services
             return tokenHandler.WriteToken(token);
         }
 
-        public RefreshToken GenerateRefreshToken(string ipAddress)
+        public RefreshToken GenerateRefreshToken(User user, string ipAddress)
         {
             var randomNumber = new byte[64];
             using var rng = RandomNumberGenerator.Create();
@@ -65,6 +65,8 @@ namespace RaidSense.Server.Services
                 Expires = DateTime.UtcNow.AddDays(7),
                 Created = DateTime.UtcNow,
                 CreatedByIp = ipAddress,
+                User = user,
+                UserId = user.Id,
             };
         }
 

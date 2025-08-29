@@ -7,7 +7,7 @@
         public Map Map { get; set; } = null!;
         public string UserId { get; set; } = null!;
         public User User { get; set; } = null!;
-        public MapRole Role { get; set; }
+        public MapRole Role { get; set; } = MapRole.Viewer;
     }
 
     public enum MapRole { Viewer, Editor, Admin }

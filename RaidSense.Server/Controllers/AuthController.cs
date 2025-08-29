@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaidSense.Server.Constants;
 using RaidSense.Server.Dtos.Auth;
+using RaidSense.Server.Extensions;
 using RaidSense.Server.Interfaces;
 using RaidSense.Server.Mappers;
 using RaidSense.Server.Models;
@@ -16,13 +17,18 @@ namespace RaidSense.Server.Controllers
         private readonly ITokenService _tokenService;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IRefreshTokenService _refreshTokenService;
 
-        public AuthController(ITokenService tokenService,
-            UserManager<User> userManager, SignInManager<User> signInManager)
+        public AuthController(
+            ITokenService tokenService,
+            UserManager<User> userManager, 
+            SignInManager<User> signInManager,
+            IRefreshTokenService refreshTokenService)
         {
             _tokenService = tokenService;
             _userManager = userManager;
             _signInManager = signInManager;
+            _refreshTokenService = refreshTokenService;
         }
 
         [HttpPost("register")]
@@ -66,24 +72,9 @@ namespace RaidSense.Server.Controllers
                 return Unauthorized("Invalid username or password");
 
             var accessToken = await _tokenService.CreateAccessTokenAsync(user);
-            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            if (Request.Cookies.TryGetValue("refreshToken", out var existingTokenValue))
-            {
-                var oldToken = user.RefreshTokens
-                    .SingleOrDefault(t => t.Token == existingTokenValue && t.IsActive);
-
-                if (oldToken != null)
-                {
-                    oldToken.Revoked = DateTime.UtcNow;
-                    oldToken.RevokedByIp = ipAddress;
-                }
-            }
-
-            var newRefreshToken = _tokenService.GenerateRefreshToken(ipAddress);
-
-            user.RefreshTokens.Add(newRefreshToken);
-            await _userManager.UpdateAsync(user);
-
+            string ipAddress = HttpContext.GetIpAddress();
+            Request.Cookies.TryGetValue("refreshToken", out var existingTokenValue);
+            var newRefreshToken = await _refreshTokenService.RotateTokenAsync(user, existingTokenValue, ipAddress);
             _tokenService.SetRefreshTokenCookie(Response, newRefreshToken);
 
             var authDto = user.ToAuthDto(accessToken);
@@ -110,15 +101,8 @@ namespace RaidSense.Server.Controllers
                 return Unauthorized("Invalid or expired refresh token");
 
             var newAccessToken = await _tokenService.CreateAccessTokenAsync(user);
-            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            var newRefreshToken = _tokenService.GenerateRefreshToken(ipAddress);
-
-            token.Revoked = DateTime.UtcNow;
-            token.RevokedByIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-            token.ReplacedByToken = newRefreshToken.Token;
-
-            user.RefreshTokens.Add(newRefreshToken);
-            await _userManager.UpdateAsync(user);
+            string ipAddress = HttpContext.GetIpAddress();
+            var newRefreshToken = await _refreshTokenService.RotateTokenAsync(user, refreshToken, ipAddress);
 
             _tokenService.SetRefreshTokenCookie(Response, newRefreshToken);
 
@@ -136,16 +120,11 @@ namespace RaidSense.Server.Controllers
                     .SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == refreshTokenValue));
 
                 if (user != null)
-                {
-                    var token = user.RefreshTokens.Single(t => t.Token == refreshTokenValue);
-                    token.Revoked = DateTime.UtcNow;
-                    token.RevokedByIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-                    await _userManager.UpdateAsync(user);
-                }
+                    await _refreshTokenService.RevokeTokenAsync(user, refreshTokenValue, HttpContext.GetIpAddress());
 
                 _tokenService.DeleteRefreshTokenCookie(Response);
             }
-
+            
             return NoContent();
         }
     }
