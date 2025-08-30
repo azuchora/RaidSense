@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using RaidSense.Server.Constants;
 using RaidSense.Server.Dtos.Auth;
 using RaidSense.Server.Extensions;
-using RaidSense.Server.Interfaces;
+using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
 using RaidSense.Server.Models;
 
@@ -53,7 +53,7 @@ namespace RaidSense.Server.Controllers
 
             await _userManager.AddToRoleAsync(user, Roles.User);
 
-            return Created(); 
+            return Created();
         }
 
         [HttpPost("login")]

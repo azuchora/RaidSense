@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using RaidSense.Server.Interfaces;
+using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Services

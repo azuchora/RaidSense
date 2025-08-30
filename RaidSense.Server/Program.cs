@@ -1,5 +1,7 @@
 using RaidSense.Server.Extensions;
-using RaidSense.Server.Interfaces;
+using RaidSense.Server.Interfaces.Repositories;
+using RaidSense.Server.Interfaces.Services;
+using RaidSense.Server.Repositories;
 using RaidSense.Server.Services;
 using System.Text.Json.Serialization;
 
@@ -17,6 +19,8 @@ builder.Services.AddSwaggerWithJwt();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IBattlemetricsService, BattlemetricsService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+builder.Services.AddScoped<IRustServerRepository, RustServerRepository>();
+builder.Services.AddScoped<IRustServerService, RustServerService>();
 
 builder.Services.AddHttpClient<IBattlemetricsService, BattlemetricsService>();
 

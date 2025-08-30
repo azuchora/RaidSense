@@ -3,8 +3,8 @@
     public class Base
     {
         public int Id { get; set; }
-        public string MapId { get; set; } = null!;
-        public Map Map { get; set; } = null!;
+        public int MapId { get; set; }
+        public UserMap Map { get; set; } = null!;
         public string Name { get; set; } = string.Empty;
         public int X { get; set; }
         public int Y { get; set; }

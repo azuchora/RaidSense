@@ -2,10 +2,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using RaidSense.Server.Interfaces;
 using RaidSense.Server.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
+using RaidSense.Server.Interfaces.Services;
 
 namespace RaidSense.Server.Services
 {

@@ -2,7 +2,7 @@
 
 namespace RaidSense.Server.Models
 {
-    //[Table("RefreshTokens")]
+    [Table("RefreshTokens")]
     public class RefreshToken
     {
         public int Id { get; set; }

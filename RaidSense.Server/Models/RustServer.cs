@@ -1,11 +1,14 @@
-﻿namespace RaidSense.Server.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace RaidSense.Server.Models
 {
+    [Table("RustServers")]
     public class RustServer
     {
-        public int Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public string MapId { get; set; } = string.Empty;
         public DateTime LastFetched { get; set; }
-        public ICollection<Map> Maps { get; set; } = new List<Map>();
+        public string? MapId { get; set; }
+        public Map? Map { get; set; }
     }
 }

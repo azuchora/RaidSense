@@ -1,5 +1,5 @@
 ﻿using RaidSense.Server.Dtos.BattleMetrics.Server;
-using RaidSense.Server.Interfaces;
+using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
 using System.Net.Http.Headers;
 
@@ -27,7 +27,6 @@ namespace RaidSense.Server.Services
             BmServerResponse? response = null;
             try
             {
-
                 response = await _httpClient.GetFromJsonAsync<BmServerResponse>(url);
             } 
             catch (Exception ex)
@@ -36,10 +35,7 @@ namespace RaidSense.Server.Services
                 return null;
             }
 
-            if (response?.Data?.Attributes?.Details?.RustMaps == null)
-                return null;
-
-            return response.ToServerDto();
+            return response?.ToServerDto();
         }
     }
 }

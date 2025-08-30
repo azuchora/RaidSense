@@ -9,11 +9,11 @@ using RaidSense.Server.Data;
 
 #nullable disable
 
-namespace RaidSense.Server.Data.Migrations
+namespace RaidSense.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250828190532_RefreshTokens")]
-    partial class RefreshTokens
+    [Migration("20250830204535_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -218,8 +218,8 @@ namespace RaidSense.Server.Data.Migrations
                     b.Property<int>("Seed")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ServerId")
-                        .HasColumnType("int");
+                    b.Property<string>("ServerId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Size")
                         .HasColumnType("int");
@@ -355,18 +355,11 @@ namespace RaidSense.Server.Data.Migrations
 
             modelBuilder.Entity("RaidSense.Server.Models.RustServer", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("LastFetched")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("MapId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()

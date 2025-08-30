@@ -9,11 +9,11 @@ using RaidSense.Server.Data;
 
 #nullable disable
 
-namespace RaidSense.Server.Data.Migrations
+namespace RaidSense.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250828165747_Init")]
-    partial class Init
+    [Migration("20250830213914_AddUserMapAndTableNameChanges")]
+    partial class AddUserMapAndTableNameChanges
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -166,9 +166,8 @@ namespace RaidSense.Server.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("MapId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("MapId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -211,14 +210,7 @@ namespace RaidSense.Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OwnerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("Seed")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ServerId")
                         .HasColumnType("int");
 
                     b.Property<int>("Size")
@@ -232,10 +224,6 @@ namespace RaidSense.Server.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerId");
-
-                    b.HasIndex("ServerId");
-
                     b.ToTable("Maps");
                 });
 
@@ -247,9 +235,8 @@ namespace RaidSense.Server.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("MapId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("MapId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -260,9 +247,10 @@ namespace RaidSense.Server.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MapId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("MapId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("MapUsers");
                 });
@@ -312,7 +300,7 @@ namespace RaidSense.Server.Data.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("RaidSense.Server.Models.RustServer", b =>
+            modelBuilder.Entity("RaidSense.Server.Models.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -320,12 +308,49 @@ namespace RaidSense.Server.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByIp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReplacedByToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Revoked")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RevokedByIp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("RaidSense.Server.Models.RustServer", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("LastFetched")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("MapId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -333,7 +358,9 @@ namespace RaidSense.Server.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Servers");
+                    b.HasIndex("MapId");
+
+                    b.ToTable("RustServers");
                 });
 
             modelBuilder.Entity("RaidSense.Server.Models.User", b =>
@@ -401,6 +428,31 @@ namespace RaidSense.Server.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("RaidSense.Server.Models.UserMap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("MapId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MapId");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("UserMaps");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -454,7 +506,7 @@ namespace RaidSense.Server.Data.Migrations
 
             modelBuilder.Entity("RaidSense.Server.Models.Base", b =>
                 {
-                    b.HasOne("RaidSense.Server.Models.Map", "Map")
+                    b.HasOne("RaidSense.Server.Models.UserMap", "Map")
                         .WithMany("Bases")
                         .HasForeignKey("MapId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -482,30 +534,12 @@ namespace RaidSense.Server.Data.Migrations
                     b.Navigation("Player");
                 });
 
-            modelBuilder.Entity("RaidSense.Server.Models.Map", b =>
-                {
-                    b.HasOne("RaidSense.Server.Models.User", "Owner")
-                        .WithMany("OwnedMaps")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("RaidSense.Server.Models.RustServer", "Server")
-                        .WithMany("Maps")
-                        .HasForeignKey("ServerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Owner");
-
-                    b.Navigation("Server");
-                });
-
             modelBuilder.Entity("RaidSense.Server.Models.MapUser", b =>
                 {
-                    b.HasOne("RaidSense.Server.Models.Map", "Map")
+                    b.HasOne("RaidSense.Server.Models.UserMap", "Map")
                         .WithMany("MapUsers")
                         .HasForeignKey("MapId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("RaidSense.Server.Models.User", "User")
@@ -530,6 +564,46 @@ namespace RaidSense.Server.Data.Migrations
                     b.Navigation("Base");
                 });
 
+            modelBuilder.Entity("RaidSense.Server.Models.RefreshToken", b =>
+                {
+                    b.HasOne("RaidSense.Server.Models.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RaidSense.Server.Models.RustServer", b =>
+                {
+                    b.HasOne("RaidSense.Server.Models.Map", "Map")
+                        .WithMany("Servers")
+                        .HasForeignKey("MapId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Map");
+                });
+
+            modelBuilder.Entity("RaidSense.Server.Models.UserMap", b =>
+                {
+                    b.HasOne("RaidSense.Server.Models.Map", "Map")
+                        .WithMany("UserMaps")
+                        .HasForeignKey("MapId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RaidSense.Server.Models.User", "Owner")
+                        .WithMany("OwnedMaps")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Map");
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("RaidSense.Server.Models.Base", b =>
                 {
                     b.Navigation("BasePlayers");
@@ -539,9 +613,9 @@ namespace RaidSense.Server.Data.Migrations
 
             modelBuilder.Entity("RaidSense.Server.Models.Map", b =>
                 {
-                    b.Navigation("Bases");
+                    b.Navigation("Servers");
 
-                    b.Navigation("MapUsers");
+                    b.Navigation("UserMaps");
                 });
 
             modelBuilder.Entity("RaidSense.Server.Models.Player", b =>
@@ -549,16 +623,20 @@ namespace RaidSense.Server.Data.Migrations
                     b.Navigation("BasePlayers");
                 });
 
-            modelBuilder.Entity("RaidSense.Server.Models.RustServer", b =>
-                {
-                    b.Navigation("Maps");
-                });
-
             modelBuilder.Entity("RaidSense.Server.Models.User", b =>
                 {
                     b.Navigation("MapAccesses");
 
                     b.Navigation("OwnedMaps");
+
+                    b.Navigation("RefreshTokens");
+                });
+
+            modelBuilder.Entity("RaidSense.Server.Models.UserMap", b =>
+                {
+                    b.Navigation("Bases");
+
+                    b.Navigation("MapUsers");
                 });
 #pragma warning restore 612, 618
         }

@@ -8,8 +8,9 @@
         public int Port { get; set; }
         public int Players { get; set; }
         public int MaxPlayers { get; set; }
-        public int Seed { get; set; }
-        public int Size { get; set; }
-        public string Url { get; set; } = string.Empty;
+        public int? Seed { get; set; }
+        public int? Size { get; set; }
+        public string? Url { get; set; } = string.Empty;
+        public string? MapId { get; set; } = string.Empty;
     }
 }

@@ -9,12 +9,14 @@ namespace RaidSense.Server.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Map> Maps { get; set; }
+        public DbSet<UserMap> UserMaps { get; set; }
         public DbSet<MapUser> MapUsers { get; set; }
         public DbSet<RustServer> Servers { get; set; }
         public DbSet<Base> Bases { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<BasePlayer> BasePlayers { get; set; }
         public DbSet<Photo> Photos { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -28,32 +30,36 @@ namespace RaidSense.Server.Data
 
             builder.Entity<MapUser>()
                 .HasOne(mu => mu.Map)
-                .WithMany(m => m.MapUsers)
+                .WithMany(um => um.MapUsers)
                 .HasForeignKey(mu => mu.MapId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<Map>()
-                .HasOne(m => m.Owner)
-                .WithMany(u => u.OwnedMaps)
-                .HasForeignKey(m => m.OwnerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<Map>()
-               .HasOne(m => m.Server)
-               .WithMany(s => s.Maps)
-               .HasForeignKey(m => m.ServerId)
-               .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<MapUser>()
+                .HasIndex(mu => new { mu.MapId, mu.UserId })
+                .IsUnique();
+
+            builder.Entity<UserMap>()
+                .HasOne(um => um.Map)
+                .WithMany(m => m.UserMaps)
+                .HasForeignKey(um => um.MapId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<UserMap>()
+                .HasOne(um => um.Owner)
+                .WithMany(u => u.OwnedMaps)
+                .HasForeignKey(um => um.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<RustServer>()
+                .HasOne(rs => rs.Map)
+                .WithMany(m => m.Servers)
+                .HasForeignKey(rs => rs.MapId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Entity<Base>()
                 .HasOne(b => b.Map)
-                .WithMany(m => m.Bases)
+                .WithMany(um => um.Bases)
                 .HasForeignKey(b => b.MapId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<Base>()
-                .HasMany(b => b.Photos)
-                .WithOne(p => p.Base)
-                .HasForeignKey(p => p.BaseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<BasePlayer>()
@@ -75,6 +81,12 @@ namespace RaidSense.Server.Data
                 .HasOne(p => p.Base)
                 .WithMany(b => b.Photos)
                 .HasForeignKey(p => p.BaseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<RefreshToken>()
+                .HasOne(rt => rt.User)
+                .WithMany(u => u.RefreshTokens)
+                .HasForeignKey(rt => rt.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

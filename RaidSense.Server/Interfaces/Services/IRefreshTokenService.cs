@@ -1,6 +1,6 @@
 ﻿using RaidSense.Server.Models;
 
-namespace RaidSense.Server.Interfaces
+namespace RaidSense.Server.Interfaces.Services
 {
     public interface IRefreshTokenService
     {

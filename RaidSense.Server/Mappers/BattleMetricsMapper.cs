@@ -1,14 +1,24 @@
-﻿using RaidSense.Server.Dtos.BattleMetrics.Server;
+﻿using Microsoft.Identity.Client;
+using RaidSense.Server.Dtos.BattleMetrics.Server;
+using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Mappers
 {
     public static class BattleMetricsMapper
     {
-        public static BmServerDto ToServerDto(this BmServerResponse response)
+        public static BmServerDto? ToServerDto(this BmServerResponse response)
         {
-            var mapDetails = response.Data.Attributes.Details.RustMaps;
-            var serverAttributes = response.Data.Attributes;
-            var serverDetails = serverAttributes.Details;
+            var serverAttributes = response?.Data?.Attributes;
+            var serverDetails = serverAttributes?.Details;
+            var mapDetails = serverDetails?.RustMaps;
+
+            if (serverAttributes == null || serverDetails == null || mapDetails == null)
+                return null;
+
+            var mapId = !string.IsNullOrEmpty(mapDetails.Url)
+                ? new Uri(mapDetails.Url).Segments.Last().TrimEnd('/')
+                : null;
+
             return new BmServerDto
             {
                 Id = serverAttributes.Id,
@@ -20,6 +30,17 @@ namespace RaidSense.Server.Mappers
                 Seed = mapDetails.Seed,
                 Size = mapDetails.Size,
                 Url = mapDetails.Url,
+                MapId = mapId,
+            };
+        }
+
+        public static RustServer ToRustServer(this BmServerDto bmServerDto)
+        {
+            return new RustServer
+            {
+                Id = bmServerDto.Id,
+                Name = bmServerDto.Name,
+                LastFetched = DateTime.UtcNow,
             };
         }
     }
