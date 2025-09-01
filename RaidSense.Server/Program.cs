@@ -21,6 +21,8 @@ builder.Services.AddScoped<IBattlemetricsService, BattlemetricsService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IRustServerRepository, RustServerRepository>();
 builder.Services.AddScoped<IRustServerService, RustServerService>();
+builder.Services.AddScoped<IMapRepository, MapRepository>();
+builder.Services.AddScoped<IMapService, MapService>();
 
 builder.Services.AddHttpClient<IBattlemetricsService, BattlemetricsService>();
 

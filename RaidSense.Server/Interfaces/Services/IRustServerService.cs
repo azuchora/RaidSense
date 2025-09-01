@@ -7,5 +7,7 @@ namespace RaidSense.Server.Interfaces.Services
         Task<RustServer?> GetOrCreateAsync(string id);
         Task<RustServer?> GetByIdAsync(string id);
         Task<List<RustServer>> GetAllAsync();
+        Task<bool> DeleteByIdAsync(string id);
+        Task<RustServer?> SyncServerAsync(string id);
     }
 }

@@ -41,5 +41,15 @@ namespace RaidSense.Server.Repositories
         }
 
         public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
+
+        public async Task<bool> DeleteByIdAsync(TKey id)
+        {
+            var entity = await _dbSet.FindAsync(id);
+            if (entity == null) return false;
+
+            _dbSet.Remove(entity);
+            await SaveChangesAsync();
+            return true;
+        }
     }
 }

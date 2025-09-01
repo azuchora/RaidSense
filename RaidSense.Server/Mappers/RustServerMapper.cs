@@ -12,6 +12,7 @@ namespace RaidSense.Server.Mappers
                 Id = rustServer.Id,
                 Name = rustServer.Name,
                 LastFetched = rustServer.LastFetched,
+                MapId = rustServer.MapId,
             };
         }
     }

@@ -9,5 +9,6 @@
         Task UpdateAsync(TEntity entity);
         Task DeleteAsync(TEntity entity);
         Task SaveChangesAsync();
+        Task<bool> DeleteByIdAsync(TKey id);
     }
 }

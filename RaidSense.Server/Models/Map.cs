@@ -3,7 +3,6 @@
     public class Map
     {
         public string Id { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
         public int Seed { get; set; }
         public int Size { get; set; }
         public bool isCustomMap { get; set; }

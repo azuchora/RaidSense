@@ -41,6 +41,20 @@ namespace RaidSense.Server.Mappers
                 Id = bmServerDto.Id,
                 Name = bmServerDto.Name,
                 LastFetched = DateTime.UtcNow,
+                MapId = bmServerDto.MapId,
+            };
+        }
+
+        public static Map? ToMap(this BmServerDto bmServerDto)
+        {
+            if (bmServerDto?.MapId == null)
+                return null;
+
+            return new Map 
+            {
+                Id = bmServerDto.MapId,
+                Seed = (int) bmServerDto.Seed!,
+                Size = (int) bmServerDto.Size!,
             };
         }
     }

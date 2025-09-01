@@ -6,6 +6,6 @@ namespace RaidSense.Server.Repositories
 {
     public class RustServerRepository: GenericRepository<RustServer, string>, IRustServerRepository
     {
-        public RustServerRepository(AppDbContext context) : base(context){ }
+        public RustServerRepository(AppDbContext context) : base(context) { }
     }
 }
