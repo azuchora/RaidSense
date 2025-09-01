@@ -33,11 +33,11 @@ namespace RaidSense.Server.Services
                 return server;
 
             var bmResponse = await _bmService.GetServerDetailsAsync(id);
-            var rustServer = bmResponse?.ToRustServer();
+            var rustServer = bmResponse?.ToRustServerEntity();
             if (rustServer == null || bmResponse == null)
                 return null;
 
-            var map = bmResponse.ToMap();
+            var map = bmResponse.ToMapEntity();
             if (map == null) return null; // server doesnt support rustmaps
             
             await _mapService.CreateAsync(map);
@@ -70,7 +70,7 @@ namespace RaidSense.Server.Services
             server.Name = bmServer.Name;
             server.LastFetched = DateTime.UtcNow;
 
-            var newMap = bmServer.ToMap();
+            var newMap = bmServer.ToMapEntity();
             if (newMap != null && newMap.Id != server.MapId)
             {
                 var existingMap = await _mapService.GetByIdAsync(newMap.Id);

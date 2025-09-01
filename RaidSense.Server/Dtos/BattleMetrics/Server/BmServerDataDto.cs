@@ -1,9 +1,9 @@
 ﻿namespace RaidSense.Server.Dtos.BattleMetrics.Server
 {
-    public class BmServerData
+    public class BmServerDataDto
     {
         public string Type { get; set; } = string.Empty;
         public string Id { get; set; } = string.Empty;
-        public BmServerAttributes Attributes { get; set; } = null!;
+        public BmServerAttributesDto Attributes { get; set; } = null!;
     }
 }

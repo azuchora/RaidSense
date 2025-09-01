@@ -1,32 +1,44 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using RaidSense.Server.Constants;
+﻿using Microsoft.AspNetCore.Mvc;
 using RaidSense.Server.Dtos.RustServer;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
 
 namespace RaidSense.Server.Controllers
 {
-    [Route("api/servers")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class RustServerController : ControllerBase
+    public class ServersController : ControllerBase
     {
         private IRustServerService _rustServerService;
-        public RustServerController(IRustServerService rustServerService)
+        public ServersController(IRustServerService rustServerService)
         {
             _rustServerService = rustServerService;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<RustServerDto>> GetOrCreateServer([FromRoute] string id)
+        public async Task<ActionResult<RustServerDto>> GetById([FromRoute] string id)
+        {
+            var server = await _rustServerService.GetByIdAsync(id);
+
+            if (server == null)
+                return NotFound();
+
+            var dto = server.ToDto();
+
+            return Ok(dto);
+        }
+
+        [HttpPost("{id}")]
+        public async Task<ActionResult<RustServerDto>> CreateOrGetById([FromRoute] string id)
         {
             var server = await _rustServerService.GetOrCreateAsync(id);
 
             if (server == null)
                 return NotFound("Server not found or it doesnt support rustmaps");
 
-            return Ok(server.ToDto());
+            var dto = server.ToDto();
+
+            return CreatedAtAction(nameof(GetById), new { id = server.Id }, dto); 
         }
 
         [HttpGet]
@@ -34,6 +46,7 @@ namespace RaidSense.Server.Controllers
         {
             var servers = await _rustServerService.GetAllAsync();
             var dtos = servers.Select(s => s.ToDto()).ToList();
+
             return Ok(dtos);
         }
 
@@ -50,7 +63,12 @@ namespace RaidSense.Server.Controllers
         {
             var server = await _rustServerService.SyncServerAsync(id);
 
-            return server == null ? NoContent() : Ok(server.ToDto());
+            if (server == null)
+                return NotFound();
+
+            var dto = server.ToDto();
+            
+            return Ok(dto);
         }
     }
 }

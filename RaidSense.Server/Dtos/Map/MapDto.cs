@@ -1,6 +1,6 @@
-﻿namespace RaidSense.Server.Models
+﻿namespace RaidSense.Server.Dtos.Map
 {
-    public class Map
+    public class MapDto
     {
         public string Id { get; set; } = string.Empty;
         public int Seed { get; set; }
@@ -10,9 +10,7 @@
         public string RawImageUrl { get; set; } = string.Empty;
         public string ImageUrl { get; set; } = string.Empty;
         public string ThumbnailUrl { get; set; } = string.Empty;
-        public string Url { get; set; } = string.Empty;
-        public bool IsPopulated => !string.IsNullOrEmpty(Url);
-        public ICollection<RustServer> Servers { get; set; } = new List<RustServer>();
-        public ICollection<UserMap> UserMaps { get; set; } = new List<UserMap>();
+        public string Url {  get; set; } = string.Empty;
+        public bool IsPopulated { get; set; }
     }
 }

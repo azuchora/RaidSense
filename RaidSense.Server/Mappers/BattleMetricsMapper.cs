@@ -6,7 +6,7 @@ namespace RaidSense.Server.Mappers
 {
     public static class BattleMetricsMapper
     {
-        public static BmServerDto? ToServerDto(this BmServerResponse response)
+        public static BmServerDto? ToServerDto(this BmServerResponseDto response)
         {
             var serverAttributes = response?.Data?.Attributes;
             var serverDetails = serverAttributes?.Details;
@@ -34,7 +34,7 @@ namespace RaidSense.Server.Mappers
             };
         }
 
-        public static RustServer ToRustServer(this BmServerDto bmServerDto)
+        public static RustServer ToRustServerEntity(this BmServerDto bmServerDto)
         {
             return new RustServer
             {
@@ -45,7 +45,7 @@ namespace RaidSense.Server.Mappers
             };
         }
 
-        public static Map? ToMap(this BmServerDto bmServerDto)
+        public static Map? ToMapEntity(this BmServerDto bmServerDto)
         {
             if (bmServerDto?.MapId == null)
                 return null;

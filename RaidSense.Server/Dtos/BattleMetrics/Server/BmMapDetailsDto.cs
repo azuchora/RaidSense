@@ -1,6 +1,6 @@
 ﻿namespace RaidSense.Server.Dtos.BattleMetrics.Server
 {
-    public class BmMapDetails
+    public class BmMapDetailsDto
     {
         public int Seed { get; set; }
         public int Size { get; set; }

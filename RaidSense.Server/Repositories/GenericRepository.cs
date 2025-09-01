@@ -18,7 +18,7 @@ namespace RaidSense.Server.Repositories
 
         public async Task<TEntity?> GetByIdAsync(TKey id) => await _dbSet.FindAsync(id);
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync() => await _dbSet.ToListAsync();
+        public async Task<List<TEntity>> GetAllAsync() => await _dbSet.ToListAsync();
 
         public async Task AddAsync(TEntity entity) => await _dbSet.AddAsync(entity);
 
@@ -51,5 +51,7 @@ namespace RaidSense.Server.Repositories
             await SaveChangesAsync();
             return true;
         }
+
+        public IQueryable<TEntity> GetQueryable() => _dbSet.AsQueryable();
     }
 }

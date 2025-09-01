@@ -24,10 +24,10 @@ namespace RaidSense.Server.Services
         public async Task<BmServerDto?> GetServerDetailsAsync(string serverId)
         {
             var url = $"https://api.battlemetrics.com/servers/{serverId}";
-            BmServerResponse? response = null;
+            BmServerResponseDto? response = null;
             try
             {
-                response = await _httpClient.GetFromJsonAsync<BmServerResponse>(url);
+                response = await _httpClient.GetFromJsonAsync<BmServerResponseDto>(url);
             } 
             catch (Exception ex)
             {

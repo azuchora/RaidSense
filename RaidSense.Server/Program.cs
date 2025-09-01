@@ -25,6 +25,7 @@ builder.Services.AddScoped<IMapRepository, MapRepository>();
 builder.Services.AddScoped<IMapService, MapService>();
 
 builder.Services.AddHttpClient<IBattlemetricsService, BattlemetricsService>();
+builder.Services.AddHttpClient<IRustMapsService, RustMapsService>();
 
 var app = builder.Build();
 

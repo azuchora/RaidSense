@@ -2,7 +2,7 @@
 
 namespace RaidSense.Server.Dtos.BattleMetrics.Server
 {
-    public class BmServerDetails
+    public class BmServerDetailsDto
     {
         [JsonPropertyName("rust_headerimage")]
         public string HeaderImage { get; set; } = string.Empty;
@@ -20,7 +20,7 @@ namespace RaidSense.Server.Dtos.BattleMetrics.Server
         public string WorldLevelUrl { get; set; } = string.Empty;
 
         [JsonPropertyName("rust_maps")]
-        public BmMapDetails RustMaps { get; set; } = new();
+        public BmMapDetailsDto RustMaps { get; set; } = new();
 
         [JsonPropertyName("rust_last_wipe")]
         public DateTime RustLastWipe { get; set; }

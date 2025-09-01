@@ -1,8 +1,8 @@
 ﻿namespace RaidSense.Server.Dtos.BattleMetrics.Server
 {
-    public class BmServerResponse
+    public class BmServerResponseDto
     {
-        public BmServerData Data { get; set; } = default!;
+        public BmServerDataDto Data { get; set; } = default!;
         public List<object>? Included { get; set; }
     }
 }
