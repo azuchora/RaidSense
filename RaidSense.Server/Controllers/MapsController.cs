@@ -61,5 +61,13 @@ namespace RaidSense.Server.Controllers
             
             return Ok(map.ToDto());
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteById([FromRoute] string id)
+        {
+            var result = await _mapService.DeleteByIdAsync(id);
+
+            return result ? NoContent() : NotFound();
+        }
     }
 }

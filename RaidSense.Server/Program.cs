@@ -23,6 +23,10 @@ builder.Services.AddScoped<IRustServerRepository, RustServerRepository>();
 builder.Services.AddScoped<IRustServerService, RustServerService>();
 builder.Services.AddScoped<IMapRepository, MapRepository>();
 builder.Services.AddScoped<IMapService, MapService>();
+builder.Services.AddScoped<IMapUserRepository, MapUserRepository>();
+builder.Services.AddScoped<IMapUserService, MapUserService>();
+builder.Services.AddScoped<IUserMapRepository, UserMapRepository>();
+builder.Services.AddScoped<IUserMapService, UserMapService>();
 
 builder.Services.AddHttpClient<IBattlemetricsService, BattlemetricsService>();
 builder.Services.AddHttpClient<IRustMapsService, RustMapsService>();
