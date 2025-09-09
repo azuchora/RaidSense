@@ -4,11 +4,11 @@ using System.Net.Http.Headers;
 
 namespace RaidSense.Server.Services
 {
-    public class RustMapsService : IRustMapsService
+    public class RustMapsApiService : IRustMapsService
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
-        public RustMapsService(HttpClient httpClient, IConfiguration config)
+        public RustMapsApiService(HttpClient httpClient, IConfiguration config)
         {
             _httpClient = httpClient;   
             _config = config;

@@ -17,10 +17,10 @@ namespace RaidSense.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<MapDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<MapDto>>> GetAll()
         {
             var maps = await _mapService.GetAllAsync();
-            var dtos = maps.Select(map => map.ToDto()).ToList();
+            var dtos = maps.Select(map => map.ToDto());
 
             return Ok(dtos);
         }

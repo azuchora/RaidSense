@@ -8,7 +8,7 @@ namespace RaidSense.Server.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<Map> Maps { get; set; }
+        public DbSet<RustMap> Maps { get; set; }
         public DbSet<UserMap> UserMaps { get; set; }
         public DbSet<MapUser> MapUsers { get; set; }
         public DbSet<RustServer> Servers { get; set; }

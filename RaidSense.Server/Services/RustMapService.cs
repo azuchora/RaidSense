@@ -5,17 +5,17 @@ using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Services
 {
-    public class MapService : IMapService
+    public class RustMapService : IMapService
     {
         private readonly IMapRepository _mapRepo;
         private readonly IRustMapsService _rustMapsService;
-        public MapService(IMapRepository mapRepo, IRustMapsService rustMapsService)
+        public RustMapService(IMapRepository mapRepo, IRustMapsService rustMapsService)
         {
             _mapRepo = mapRepo;
             _rustMapsService = rustMapsService;
         }
 
-        public async Task<Map> CreateAsync(Map map)
+        public async Task<RustMap> CreateAsync(RustMap map)
         {
             await _mapRepo.AddAndSaveAsync(map);
             return map;
@@ -26,18 +26,18 @@ namespace RaidSense.Server.Services
             return await _mapRepo.DeleteByIdAsync(id);
         }
 
-        public async Task<List<Map>> GetAllAsync()
+        public async Task<List<RustMap>> GetAllAsync()
         {
             var maps = await _mapRepo.GetAllAsync();
             return maps.ToList();
         }
 
-        public async Task<Map?> GetByIdAsync(string id)
+        public async Task<RustMap?> GetByIdAsync(string id)
         {
             return await _mapRepo.GetByIdAsync(id);
         }
 
-        public async Task<Map?> GetOrCreateAsync(string id)
+        public async Task<RustMap?> GetOrCreateAsync(string id)
         {
             var map = await _mapRepo.GetByIdAsync(id);
             if (map != null) return map;
@@ -49,7 +49,7 @@ namespace RaidSense.Server.Services
             return newMap;
         }
 
-        public async Task<Map?> SyncMapAsync(string id)
+        public async Task<RustMap?> SyncMapAsync(string id)
         {
             var map = await _mapRepo.GetByIdAsync(id);
 

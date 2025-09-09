@@ -4,7 +4,7 @@ using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Repositories
 {
-    public class MapRepository: GenericRepository<Map, string>, IMapRepository
+    public class MapRepository: GenericRepository<RustMap, string>, IMapRepository
     {
         public MapRepository(AppDbContext context) : base(context) {}
     }

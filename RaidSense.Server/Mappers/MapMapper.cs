@@ -8,7 +8,7 @@ namespace RaidSense.Server.Mappers
 {
     public static class MapMapper
     {
-        public static MapDto ToDto(this Map map)
+        public static MapDto ToDto(this RustMap map)
         {
             return new MapDto
             {
@@ -25,7 +25,7 @@ namespace RaidSense.Server.Mappers
             };
         }
 
-        public static void UpdateFromDto(this Map map, RustMapsDataDto dto)
+        public static void UpdateFromDto(this RustMap map, RustMapsDataDto dto)
         {
             map.Seed = dto.Seed;
             map.Size = dto.Size;

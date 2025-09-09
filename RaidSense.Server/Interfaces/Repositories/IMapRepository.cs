@@ -2,7 +2,7 @@
 
 namespace RaidSense.Server.Interfaces.Repositories
 {
-    public interface IMapRepository : IGenericRepository<Map, string>
+    public interface IMapRepository : IGenericRepository<RustMap, string>
     {
     }
 }

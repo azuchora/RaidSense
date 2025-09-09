@@ -5,9 +5,9 @@ namespace RaidSense.Server.Mappers
 {
     public static class RustMapsMapper
     {
-        public static Map ToEntity(this RustMapsDataDto dto)
+        public static RustMap ToEntity(this RustMapsDataDto dto)
         {
-            return new Map
+            return new RustMap
             {
                 Id = dto.Id,
                 Seed = dto.Seed,

@@ -9,7 +9,7 @@ namespace RaidSense.Server.Models
         public string OwnerId { get; set; } = null!;
         public User Owner { get; set; } = null!;
         public string MapId { get; set; } = null!;
-        public Map Map { get; set; } = null!;
+        public RustMap Map { get; set; } = null!;
         public ICollection<MapUser> MapUsers { get; set; } = new List<MapUser>();
         public ICollection<Base> Bases { get; set; } = new List<Base>();
     }

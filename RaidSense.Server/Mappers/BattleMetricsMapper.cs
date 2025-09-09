@@ -45,12 +45,12 @@ namespace RaidSense.Server.Mappers
             };
         }
 
-        public static Map? ToMapEntity(this BmServerDto bmServerDto)
+        public static RustMap? ToMapEntity(this BmServerDto bmServerDto)
         {
             if (bmServerDto?.MapId == null)
                 return null;
 
-            return new Map 
+            return new RustMap 
             {
                 Id = bmServerDto.MapId,
                 Seed = (int) bmServerDto.Seed!,

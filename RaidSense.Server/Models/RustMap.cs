@@ -1,6 +1,6 @@
 ﻿namespace RaidSense.Server.Models
 {
-    public class Map
+    public class RustMap
     {
         public string Id { get; set; } = string.Empty;
         public int Seed { get; set; }

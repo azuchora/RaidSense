@@ -10,5 +10,5 @@
         public MapRole Role { get; set; } = MapRole.Viewer;
     }
 
-    public enum MapRole { Viewer, Editor, Admin }
+    public enum MapRole { Viewer, Editor, Admin, Owner }
 }

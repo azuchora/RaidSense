@@ -42,10 +42,10 @@ namespace RaidSense.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<RustServerDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<RustServerDto>>> GetAll()
         {
             var servers = await _rustServerService.GetAllAsync();
-            var dtos = servers.Select(s => s.ToDto()).ToList();
+            var dtos = servers.Select(s => s.ToDto());
 
             return Ok(dtos);
         }

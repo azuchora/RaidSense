@@ -9,6 +9,6 @@ namespace RaidSense.Server.Models
         public string Name { get; set; } = string.Empty;
         public DateTime LastFetched { get; set; }
         public string? MapId { get; set; }
-        public Map? Map { get; set; }
+        public RustMap? Map { get; set; }
     }
 }
