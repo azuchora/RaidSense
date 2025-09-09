@@ -18,17 +18,23 @@ builder.Services.AddSwaggerWithJwt();
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IBattlemetricsService, BattlemetricsService>();
+
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
 builder.Services.AddScoped<IRustServerRepository, RustServerRepository>();
 builder.Services.AddScoped<IRustServerService, RustServerService>();
+
 builder.Services.AddScoped<IMapRepository, MapRepository>();
 builder.Services.AddScoped<IMapService, RustMapService>();
+
 builder.Services.AddScoped<IMapUserRepository, MapUserRepository>();
 builder.Services.AddScoped<IMapUserService, MapUserService>();
+
 builder.Services.AddScoped<IUserMapRepository, UserMapRepository>();
 builder.Services.AddScoped<IUserMapService, UserMapService>();
 
 builder.Services.AddHttpClient<IBattlemetricsService, BattlemetricsService>();
+
 builder.Services.AddHttpClient<IRustMapsService, RustMapsApiService>();
 
 var app = builder.Build();

@@ -3,15 +3,15 @@ using RaidSense.Server.Dtos.UserMap;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
 using RaidSense.Server.Models;
-using RaidSense.Server.Repositories;
+using RaidSense.Server.Interfaces.Repositories;
 
 namespace RaidSense.Server.Services
 {
     public class UserMapService : IUserMapService
     {
-        private readonly UserMapRepository _userMapRepo;
+        private readonly IUserMapRepository _userMapRepo;
         private readonly IMapUserService _mapUserService;
-        public UserMapService(UserMapRepository userMapRepo, IMapUserService mapUserService)
+        public UserMapService(IUserMapRepository userMapRepo, IMapUserService mapUserService)
         {
             _userMapRepo = userMapRepo;
             _mapUserService = mapUserService;
