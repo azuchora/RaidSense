@@ -10,8 +10,8 @@ namespace RaidSense.Server.Controllers
     [ApiController]
     public class MapsController : ControllerBase
     {
-        private readonly IMapService _mapService;
-        public MapsController(IMapService mapService)
+        private readonly IRustMapService _mapService;
+        public MapsController(IRustMapService mapService)
         {
             _mapService = mapService;
         }

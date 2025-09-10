@@ -9,11 +9,11 @@ namespace RaidSense.Server.Interfaces.Services
         Task<UserMap?> GetByIdDetailedAsync(int id);
         Task<List<UserMap>> GetAllByOwnerAsync(string ownerId);
         Task<List<UserMapDto>> GetAllDtosByOwnerAsync(string ownerId);
-        Task<UserMap> CreateAsync(UserMap userMap, string ownerId);
+        Task<UserMap> CreateAsync(UserMap userMap);
         Task<bool> DeleteByIdAsync(int id);
-        Task<bool> AddUserAccessAsync(string userId, int mapId, MapRole role);
-        Task<bool> RemoveUserAccessAsync(string userId, int mapId);
-        Task<bool> UpdateUserAccessAsync(string userId, int mapId, MapRole role);
+        Task<bool> DeleteIfOwnerAsync(int mapId, string userId);
         Task AddBaseAsync(int mapId, Base newBase);
+        Task<bool> UpdateRustMapAsync(int id, string newRustMapId);
+        Task UpdateAsync(UserMap userMap);
     }
 }

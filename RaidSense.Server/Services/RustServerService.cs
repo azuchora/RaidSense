@@ -9,11 +9,11 @@ namespace RaidSense.Server.Services
     {
         private readonly IRustServerRepository _rustServerRepo;
         private readonly IBattlemetricsService _bmService;
-        private readonly IMapService _mapService;
+        private readonly IRustMapService _mapService;
         public RustServerService(
             IRustServerRepository rustServerRepo,
             IBattlemetricsService bmService,
-            IMapService mapService)
+            IRustMapService mapService)
         {
             _rustServerRepo = rustServerRepo;
             _bmService = bmService;

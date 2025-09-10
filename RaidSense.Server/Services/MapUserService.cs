@@ -58,5 +58,15 @@ namespace RaidSense.Server.Services
             await _mapUserRepo.UpdateAsync(mapUser);
             return true;
         }
+
+        public async Task<bool> HasRoleAsync(string userId, int mapId, MapRole minimumRole)
+        {
+            var mapUser = await GetMapUserAsync(userId, mapId);
+
+            if (mapUser == null)
+                return false;
+
+            return mapUser.Role >= minimumRole;
+        }
     }
 }

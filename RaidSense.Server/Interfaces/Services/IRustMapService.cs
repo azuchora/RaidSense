@@ -2,7 +2,7 @@
 
 namespace RaidSense.Server.Interfaces.Services
 {
-    public interface IMapService
+    public interface IRustMapService
     {
         Task<RustMap?> GetByIdAsync(string id);
         Task<List<RustMap>> GetAllAsync();

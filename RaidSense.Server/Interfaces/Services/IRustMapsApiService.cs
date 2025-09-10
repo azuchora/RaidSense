@@ -2,7 +2,7 @@
 
 namespace RaidSense.Server.Interfaces.Services
 {
-    public interface IRustMapsService
+    public interface IRustMapsApiService
     {
         Task<RustMapsDataDto?> GetRustMapDetailsAsync(string mapId);
     }

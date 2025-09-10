@@ -16,5 +16,14 @@ namespace RaidSense.Server.Mappers
                 Bases = userMap.Bases.ToList(),
             };
         }
+
+        public static UserMap ToEntity(this CreateUserMapDto dto, string ownerId)
+        {
+            return new UserMap
+            {
+                MapId = dto.MapId,
+                OwnerId = ownerId,
+            };
+        }
     }
 }

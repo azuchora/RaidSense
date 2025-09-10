@@ -5,11 +5,11 @@ using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Services
 {
-    public class RustMapService : IMapService
+    public class RustMapService : IRustMapService
     {
         private readonly IMapRepository _mapRepo;
-        private readonly IRustMapsService _rustMapsService;
-        public RustMapService(IMapRepository mapRepo, IRustMapsService rustMapsService)
+        private readonly IRustMapsApiService _rustMapsService;
+        public RustMapService(IMapRepository mapRepo, IRustMapsApiService rustMapsService)
         {
             _mapRepo = mapRepo;
             _rustMapsService = rustMapsService;
