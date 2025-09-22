@@ -26,13 +26,13 @@ namespace RaidSense.Server.Data
                 .HasOne(mu => mu.User)
                 .WithMany(u => u.MapAccesses)
                 .HasForeignKey(mu => mu.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<MapUser>()
                 .HasOne(mu => mu.Map)
                 .WithMany(um => um.MapUsers)
                 .HasForeignKey(mu => mu.MapId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<MapUser>()
                 .HasIndex(mu => new { mu.MapId, mu.UserId })
@@ -48,7 +48,7 @@ namespace RaidSense.Server.Data
                 .HasOne(um => um.Owner)
                 .WithMany(u => u.OwnedMaps)
                 .HasForeignKey(um => um.OwnerId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<RustServer>()
                 .HasOne(rs => rs.Map)

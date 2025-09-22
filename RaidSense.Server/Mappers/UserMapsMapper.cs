@@ -11,9 +11,9 @@ namespace RaidSense.Server.Mappers
             {
                 Id = userMap.Id,
                 OwnerId = userMap.OwnerId,
-                Map = userMap.Map,
-                MapUsers = userMap.MapUsers.ToList(),
-                Bases = userMap.Bases.ToList(),
+                Map = userMap.Map?.ToDto(),
+                MapUsers = userMap.MapUsers.Select(mu => mu.ToDto()).ToList(),
+                Bases = userMap.Bases.Select(b => b.ToDto()).ToList(),
             };
         }
 

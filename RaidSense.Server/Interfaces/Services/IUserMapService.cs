@@ -12,7 +12,6 @@ namespace RaidSense.Server.Interfaces.Services
         Task<UserMap> CreateAsync(UserMap userMap);
         Task<bool> DeleteByIdAsync(int id);
         Task<bool> DeleteIfOwnerAsync(int mapId, string userId);
-        Task AddBaseAsync(int mapId, Base newBase);
         Task<bool> UpdateRustMapAsync(int id, string newRustMapId);
         Task UpdateAsync(UserMap userMap);
     }

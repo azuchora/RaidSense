@@ -3,6 +3,7 @@ using RaidSense.Server.Dtos.UserMap;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Models;
 using RaidSense.Server.Interfaces.Repositories;
+using RaidSense.Server.Mappers;
 
 namespace RaidSense.Server.Services
 {
@@ -16,16 +17,11 @@ namespace RaidSense.Server.Services
             _mapUserService = mapUserService;
         }
 
-        public Task AddBaseAsync(int mapId, Base newBase)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<UserMap> CreateAsync(UserMap userMap)
         {
             await _userMapRepo.AddAndSaveAsync(userMap);
             await _mapUserService.GrantAccessAsync(userMap.OwnerId, userMap.Id, MapRole.Owner);
-            return userMap;
+            return await GetByIdDetailedAsync(userMap.Id) ?? userMap;
         }
 
         public async Task<bool> DeleteByIdAsync(int id)
@@ -57,6 +53,7 @@ namespace RaidSense.Server.Services
                 .Include(um => um.Map)
                 .Include(um => um.Bases)
                 .Include(um => um.MapUsers)
+                    .ThenInclude(mu => mu.User)
                 .SingleOrDefaultAsync(um => um.Id == id);
 
             return userMap;
@@ -73,9 +70,9 @@ namespace RaidSense.Server.Services
                 {
                     Id = um.Id,
                     OwnerId = um.OwnerId,
-                    Map = um.Map,
-                    MapUsers = um.MapUsers.ToList(),
-                    Bases = um.Bases.ToList(),
+                    Map = um.Map.ToDto(),
+                    MapUsers = um.MapUsers.Select(mu => mu.ToDto()).ToList(),
+                    Bases = um.Bases.Select(b => b.ToDto()).ToList(),
                 })
                 .ToListAsync();
         }

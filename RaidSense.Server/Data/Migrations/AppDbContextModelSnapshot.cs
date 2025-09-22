@@ -8,7 +8,7 @@ using RaidSense.Server.Data;
 
 #nullable disable
 
-namespace RaidSense.Server.Migrations
+namespace RaidSense.Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -548,13 +548,13 @@ namespace RaidSense.Server.Migrations
                     b.HasOne("RaidSense.Server.Models.UserMap", "Map")
                         .WithMany("MapUsers")
                         .HasForeignKey("MapId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RaidSense.Server.Models.User", "User")
                         .WithMany("MapAccesses")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Map");
@@ -605,7 +605,7 @@ namespace RaidSense.Server.Migrations
                     b.HasOne("RaidSense.Server.Models.User", "Owner")
                         .WithMany("OwnedMaps")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Map");

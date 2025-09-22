@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace RaidSense.Server.Migrations
+namespace RaidSense.Server.Data.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -51,6 +51,25 @@ namespace RaidSense.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Maps",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Seed = table.Column<int>(type: "int", nullable: false),
+                    Size = table.Column<int>(type: "int", nullable: false),
+                    IsCustomMap = table.Column<bool>(type: "bit", nullable: false),
+                    IsStaging = table.Column<bool>(type: "bit", nullable: false),
+                    RawImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ThumbnailUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Maps", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Players",
                 columns: table => new
                 {
@@ -63,19 +82,6 @@ namespace RaidSense.Server.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Players", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Servers",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastFetched = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Servers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -185,7 +191,7 @@ namespace RaidSense.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RefreshToken",
+                name: "RefreshTokens",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -201,9 +207,9 @@ namespace RaidSense.Server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RefreshToken", x => x.Id);
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RefreshToken_AspNetUsers_UserId",
+                        name: "FK_RefreshTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -211,33 +217,49 @@ namespace RaidSense.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Maps",
+                name: "RustServers",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ServerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Seed = table.Column<int>(type: "int", nullable: false),
-                    Size = table.Column<int>(type: "int", nullable: false),
-                    isCustomMap = table.Column<bool>(type: "bit", nullable: false),
-                    isStaging = table.Column<bool>(type: "bit", nullable: false),
-                    OwnerId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    LastFetched = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MapId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Maps", x => x.Id);
+                    table.PrimaryKey("PK_RustServers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Maps_AspNetUsers_OwnerId",
+                        name: "FK_RustServers_Maps_MapId",
+                        column: x => x.MapId,
+                        principalTable: "Maps",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserMaps",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OwnerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MapId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserMaps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserMaps_AspNetUsers_OwnerId",
                         column: x => x.OwnerId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Maps_Servers_ServerId",
-                        column: x => x.ServerId,
-                        principalTable: "Servers",
+                        name: "FK_UserMaps_Maps_MapId",
+                        column: x => x.MapId,
+                        principalTable: "Maps",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -246,7 +268,7 @@ namespace RaidSense.Server.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MapId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MapId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     X = table.Column<int>(type: "int", nullable: false),
                     Y = table.Column<int>(type: "int", nullable: false)
@@ -255,9 +277,9 @@ namespace RaidSense.Server.Migrations
                 {
                     table.PrimaryKey("PK_Bases", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Bases_Maps_MapId",
+                        name: "FK_Bases_UserMaps_MapId",
                         column: x => x.MapId,
-                        principalTable: "Maps",
+                        principalTable: "UserMaps",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -268,7 +290,7 @@ namespace RaidSense.Server.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MapId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MapId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false)
                 },
@@ -280,11 +302,11 @@ namespace RaidSense.Server.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_MapUsers_Maps_MapId",
+                        name: "FK_MapUsers_UserMaps_MapId",
                         column: x => x.MapId,
-                        principalTable: "Maps",
+                        principalTable: "UserMaps",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -383,19 +405,10 @@ namespace RaidSense.Server.Migrations
                 column: "MapId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Maps_OwnerId",
-                table: "Maps",
-                column: "OwnerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Maps_ServerId",
-                table: "Maps",
-                column: "ServerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MapUsers_MapId",
+                name: "IX_MapUsers_MapId_UserId",
                 table: "MapUsers",
-                column: "MapId");
+                columns: new[] { "MapId", "UserId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_MapUsers_UserId",
@@ -408,9 +421,24 @@ namespace RaidSense.Server.Migrations
                 column: "BaseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RefreshToken_UserId",
-                table: "RefreshToken",
+                name: "IX_RefreshTokens_UserId",
+                table: "RefreshTokens",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RustServers_MapId",
+                table: "RustServers",
+                column: "MapId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserMaps_MapId",
+                table: "UserMaps",
+                column: "MapId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserMaps_OwnerId",
+                table: "UserMaps",
+                column: "OwnerId");
         }
 
         /// <inheritdoc />
@@ -441,7 +469,10 @@ namespace RaidSense.Server.Migrations
                 name: "Photos");
 
             migrationBuilder.DropTable(
-                name: "RefreshToken");
+                name: "RefreshTokens");
+
+            migrationBuilder.DropTable(
+                name: "RustServers");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -453,13 +484,13 @@ namespace RaidSense.Server.Migrations
                 name: "Bases");
 
             migrationBuilder.DropTable(
-                name: "Maps");
+                name: "UserMaps");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Servers");
+                name: "Maps");
         }
     }
 }

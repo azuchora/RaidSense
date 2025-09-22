@@ -20,7 +20,7 @@ namespace RaidSense.Server.Services
 
         public async Task<bool> GrantAccessAsync(string userId, int userMapId, MapRole role)
         {
-            var existing = await GetMapUserAsync (userId, userMapId);
+            var existing = await GetMapUserAsync(userId, userMapId);
 
             if (existing != null)
                 return false;

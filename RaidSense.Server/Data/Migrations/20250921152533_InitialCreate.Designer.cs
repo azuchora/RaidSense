@@ -12,8 +12,8 @@ using RaidSense.Server.Data;
 namespace RaidSense.Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250901222825_AddMapMetadata")]
-    partial class AddMapMetadata
+    [Migration("20250921152533_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -201,44 +201,6 @@ namespace RaidSense.Server.Data.Migrations
                     b.ToTable("BasePlayers");
                 });
 
-            modelBuilder.Entity("RaidSense.Server.Models.Map", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsCustomMap")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsStaging")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("RawImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Seed")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Size")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ThumbnailUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Maps");
-                });
-
             modelBuilder.Entity("RaidSense.Server.Models.MapUser", b =>
                 {
                     b.Property<int>("Id")
@@ -351,6 +313,44 @@ namespace RaidSense.Server.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("RaidSense.Server.Models.RustMap", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCustomMap")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsStaging")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("RawImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Seed")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Size")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Maps");
                 });
 
             modelBuilder.Entity("RaidSense.Server.Models.RustServer", b =>
@@ -551,13 +551,13 @@ namespace RaidSense.Server.Data.Migrations
                     b.HasOne("RaidSense.Server.Models.UserMap", "Map")
                         .WithMany("MapUsers")
                         .HasForeignKey("MapId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RaidSense.Server.Models.User", "User")
                         .WithMany("MapAccesses")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Map");
@@ -589,7 +589,7 @@ namespace RaidSense.Server.Data.Migrations
 
             modelBuilder.Entity("RaidSense.Server.Models.RustServer", b =>
                 {
-                    b.HasOne("RaidSense.Server.Models.Map", "Map")
+                    b.HasOne("RaidSense.Server.Models.RustMap", "Map")
                         .WithMany("Servers")
                         .HasForeignKey("MapId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -599,7 +599,7 @@ namespace RaidSense.Server.Data.Migrations
 
             modelBuilder.Entity("RaidSense.Server.Models.UserMap", b =>
                 {
-                    b.HasOne("RaidSense.Server.Models.Map", "Map")
+                    b.HasOne("RaidSense.Server.Models.RustMap", "Map")
                         .WithMany("UserMaps")
                         .HasForeignKey("MapId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -608,7 +608,7 @@ namespace RaidSense.Server.Data.Migrations
                     b.HasOne("RaidSense.Server.Models.User", "Owner")
                         .WithMany("OwnedMaps")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Map");
@@ -623,16 +623,16 @@ namespace RaidSense.Server.Data.Migrations
                     b.Navigation("Photos");
                 });
 
-            modelBuilder.Entity("RaidSense.Server.Models.Map", b =>
+            modelBuilder.Entity("RaidSense.Server.Models.Player", b =>
+                {
+                    b.Navigation("BasePlayers");
+                });
+
+            modelBuilder.Entity("RaidSense.Server.Models.RustMap", b =>
                 {
                     b.Navigation("Servers");
 
                     b.Navigation("UserMaps");
-                });
-
-            modelBuilder.Entity("RaidSense.Server.Models.Player", b =>
-                {
-                    b.Navigation("BasePlayers");
                 });
 
             modelBuilder.Entity("RaidSense.Server.Models.User", b =>
