@@ -14,6 +14,7 @@ namespace RaidSense.Server.Extensions
             services.AddScoped<IMapUserRepository, MapUserRepository>();
             services.AddScoped<IUserMapRepository, UserMapRepository>();
             services.AddScoped<IBaseRepository, BaseRepository>();
+            services.AddScoped<IPlayerRepository, PlayerRepository>();
         }
 
         public static void AddAppServices(this IServiceCollection services)
@@ -25,6 +26,7 @@ namespace RaidSense.Server.Extensions
             services.AddScoped<IMapUserService, MapUserService>();
             services.AddScoped<IUserMapService, UserMapService>();
             services.AddScoped<IBaseService, BaseService>();
+            services.AddScoped<IPlayerService, PlayerService>();
 
             services.AddHttpClient<IBattlemetricsService, BattlemetricsService>();
             services.AddHttpClient<IRustMapsApiService, RustMapsApiService>();
