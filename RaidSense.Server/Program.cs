@@ -33,8 +33,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapFallbackToFile("/index.html");
-
 await app.SeedRolesAsync();
 await app.MigrateDbAsync();
 
