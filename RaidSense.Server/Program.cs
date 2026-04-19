@@ -1,4 +1,5 @@
 using RaidSense.Server.Extensions;
+using RaidSense.Server.Middleware;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,8 @@ builder.Services.AddRepositories();
 builder.Services.AddAppServices();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

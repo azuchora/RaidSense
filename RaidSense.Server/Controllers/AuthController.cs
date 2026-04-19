@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RaidSense.Server.Constants;
+﻿using Microsoft.AspNetCore.Mvc;
 using RaidSense.Server.Dtos.Auth;
+using RaidSense.Server.Exceptions.Http;
 using RaidSense.Server.Extensions;
 using RaidSense.Server.Interfaces.Services;
-using RaidSense.Server.Mappers;
 using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Controllers
@@ -14,118 +11,92 @@ namespace RaidSense.Server.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IAuthService _authService;
         private readonly ITokenService _tokenService;
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly IRefreshTokenService _refreshTokenService;
 
-        public AuthController(
-            ITokenService tokenService,
-            UserManager<User> userManager, 
-            SignInManager<User> signInManager,
-            IRefreshTokenService refreshTokenService)
+        public AuthController(IAuthService authService, ITokenService tokenService)
         {
+            _authService = authService;
             _tokenService = tokenService;
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _refreshTokenService = refreshTokenService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (await _userManager.FindByNameAsync(registerDto.Username) != null)
-                return Conflict("Username is taken");
-
-            var user = new User
-            {
-                UserName = registerDto.Username,
-                Email = registerDto.Email
-            };
-
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-
-            if(!result.Succeeded)
-                return BadRequest(result.Errors);
-
-            await _userManager.AddToRoleAsync(user, Roles.User);
-
+            await _authService.RegisterAsync(registerDto);
             return Created();
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<AuthDto>> Login([FromBody] LoginDto loginDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var (authDto, newRefreshToken) = await _authService.LoginAsync(
+                loginDto,
+                GetClientIp(),
+                GetRefreshToken()
+            );
 
-            var user = await _userManager.FindByNameAsync(loginDto.Username);
-            if (user == null)
-                return Unauthorized("Invalid username or password");
-
-            var login = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-
-            if (!login.Succeeded)
-                return Unauthorized("Invalid username or password");
-
-            var accessToken = await _tokenService.CreateAccessTokenAsync(user);
-            string ipAddress = HttpContext.GetIpAddress();
-            Request.Cookies.TryGetValue("refreshToken", out var existingTokenValue);
-            var newRefreshToken = await _refreshTokenService.RotateTokenAsync(user, existingTokenValue, ipAddress);
-            _tokenService.SetRefreshTokenCookie(Response, newRefreshToken);
-
-            var authDto = user.ToAuthDto(accessToken);
+            SetRefreshToken(newRefreshToken);
 
             return Ok(authDto);
         }
 
         [HttpPost("refresh")]
         public async Task<ActionResult<RefreshDto>> Refresh()
-        {
-            if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
-                return Unauthorized("Refresh token is missing");
+        {   
+            var refreshToken = GetRefreshTokenOrThrow();
 
-            var user = _userManager.Users
-                .Include(u => u.RefreshTokens)
-                .SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
+            var (refreshDto, newRefreshToken) = await _authService.RefreshAsync(
+                refreshToken,
+                GetClientIp()
+            );
 
-            if (user == null) 
-                return Unauthorized("Invalid refresh token");
+            SetRefreshToken(newRefreshToken);
 
-            var token = user.RefreshTokens.Single(x => x.Token == refreshToken);
-
-            if (!token.IsActive) 
-                return Unauthorized("Invalid or expired refresh token");
-
-            var newAccessToken = await _tokenService.CreateAccessTokenAsync(user);
-            string ipAddress = HttpContext.GetIpAddress();
-            var newRefreshToken = await _refreshTokenService.RotateTokenAsync(user, refreshToken, ipAddress);
-
-            _tokenService.SetRefreshTokenCookie(Response, newRefreshToken);
-
-            var response = new RefreshDto { AccessToken = newAccessToken };
-            return Ok(response);
+            return Ok(refreshDto);
         }
 
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            if (Request.Cookies.TryGetValue("refreshToken", out var refreshTokenValue))
+            var refreshToken = GetRefreshToken();
+
+            if(refreshToken is not null)
             {
-                var user = _userManager.Users
-                    .Include(u => u.RefreshTokens)
-                    .SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == refreshTokenValue));
-
-                if (user != null)
-                    await _refreshTokenService.RevokeTokenAsync(user, refreshTokenValue, HttpContext.GetIpAddress());
-
-                _tokenService.DeleteRefreshTokenCookie(Response);
+                await _authService.LogoutAsync(
+                    refreshToken,
+                    GetClientIp()
+                );
             }
-            
+
+            DeleteRefreshToken();
+
             return NoContent();
         }
-    }
+
+        private string GetClientIp()
+            => HttpContext.GetIpAddress();
+        
+        private string? GetRefreshToken()
+        {
+            Request.Cookies.TryGetValue(
+                "refreshToken",
+                out var token
+            );
+
+            return token;
+        }
+
+        private string GetRefreshTokenOrThrow()
+        {
+            return GetRefreshToken()
+                ?? throw new UnauthorizedException("Missing refresh token");
+        }
+
+        private void SetRefreshToken(RefreshToken token)
+        => _tokenService.SetRefreshTokenCookie(Response, token);
+
+        private void DeleteRefreshToken()
+            => _tokenService.DeleteRefreshTokenCookie(Response);
+        }
 }
