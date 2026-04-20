@@ -1,6 +1,5 @@
 ﻿using RaidSense.Server.Dtos.RustMaps;
 using RaidSense.Server.Interfaces.Services;
-using System.Net.Http.Headers;
 
 namespace RaidSense.Server.Services
 {
@@ -22,20 +21,20 @@ namespace RaidSense.Server.Services
         public async Task<RustMapsDataDto?> GetRustMapDetailsAsync(string mapId)
         {
             var url = $"https://api.rustmaps.com/v4/maps/{mapId}";
-            RustMapsResponseDto? response = null;
+
             try
             {
-                var res = await _httpClient.GetAsync(url);
-                
-                response = await _httpClient.GetFromJsonAsync<RustMapsResponseDto>(url);
+                var response = await _httpClient.GetAsync(url);
+                if (!response.IsSuccessStatusCode) return null;
+
+                var result = await response.Content.ReadFromJsonAsync<RustMapsResponseDto>();
+
+                return result?.Data;
             }
-            catch (Exception e)
+            catch (HttpRequestException)
             {
-                Console.WriteLine(e);
                 return null;
             }
-            
-            return response?.Data;
         }
     }
 }

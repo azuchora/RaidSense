@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using RaidSense.Server.Dtos.Map;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
@@ -30,19 +29,13 @@ namespace RaidSense.Server.Controllers
         {
             var map = await _mapService.GetByIdAsync(id);
 
-            if (map == null)
-                return NotFound();
-
             return Ok(map.ToDto());
         }
 
-        [HttpPost("{id}")]
-        public async Task<ActionResult<MapDto>> CreateOrGetById([FromRoute] string id)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<MapDto>> EnsureExists([FromRoute] string id)
         {
             var map = await _mapService.GetOrCreateAsync(id);
-
-            if (map == null)
-                return NotFound();
 
             var dto = map.ToDto();
 
@@ -54,20 +47,15 @@ namespace RaidSense.Server.Controllers
         {
             var map = await _mapService.SyncMapAsync(id);
 
-            if(map == null) 
-                return NotFound();
-
-            var dto = map.ToDto();
-            
             return Ok(map.ToDto());
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteById([FromRoute] string id)
         {
-            var result = await _mapService.DeleteByIdAsync(id);
+            await _mapService.DeleteByIdAsync(id);
 
-            return result ? NoContent() : NotFound();
+            return NoContent();
         }
     }
 }

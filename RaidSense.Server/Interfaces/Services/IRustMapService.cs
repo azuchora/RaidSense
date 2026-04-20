@@ -4,11 +4,11 @@ namespace RaidSense.Server.Interfaces.Services
 {
     public interface IRustMapService
     {
-        Task<RustMap?> GetByIdAsync(string id);
+        Task<RustMap> GetByIdAsync(string id);
         Task<List<RustMap>> GetAllAsync();
-        Task<bool> DeleteByIdAsync(string id);
+        Task DeleteByIdAsync(string id);
         Task<RustMap> CreateAsync(RustMap map);
-        Task<RustMap?> GetOrCreateAsync(string id);
-        Task<RustMap?> SyncMapAsync(string id);
+        Task<RustMap> GetOrCreateAsync(string id);
+        Task<RustMap> SyncMapAsync(string id);
     }
 }
