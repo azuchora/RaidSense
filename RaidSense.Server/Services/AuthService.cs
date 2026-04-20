@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Identity;
 using RaidSense.Server.Constants;
 using RaidSense.Server.Dtos.Auth;
@@ -12,20 +11,20 @@ namespace RaidSense.Server.Services;
 
 public class AuthService : IAuthService
 {
+    private const string InvalidCredentials = "Invalid username or password";
+
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly ITokenService _tokenService;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IUserRepository _userRepo;
-    private const string InvalidCredentials = "Invalid username or password";
 
     public AuthService(
         UserManager<User> userManager,
         SignInManager<User> signInManager,
         ITokenService tokenService,
         IRefreshTokenService refreshTokenService,
-        IUserRepository userRepo
-    )
+        IUserRepository userRepo)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -33,21 +32,16 @@ public class AuthService : IAuthService
         _refreshTokenService = refreshTokenService;
         _userRepo = userRepo;
     }
-    
-    public async Task<(AuthDto, RefreshToken)> LoginAsync(LoginDto dto, string ipAddress, string? refreshToken)
+
+    public async Task<(AuthDto, RefreshToken)> LoginAsync(
+        LoginDto dto,
+        string ipAddress,
+        string? refreshToken)
     {
-        var user = await _userManager.FindByNameAsync(dto.Username);
-        if (user == null)
-            throw new UnauthorizedException(InvalidCredentials);
-        
-        var login = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
+        var user = await ValidateCredentialsAsync(dto);
 
-        if (!login.Succeeded)
-            throw new UnauthorizedException(InvalidCredentials);
+        var (accessToken, newRefreshToken) = await IssueTokensAsync(user, refreshToken, ipAddress);
 
-        var accessToken = await _tokenService.CreateAccessTokenAsync(user);
-        var newRefreshToken = await _refreshTokenService.RotateTokenAsync(user, refreshToken, ipAddress);
-        
         return (user.ToAuthDto(accessToken), newRefreshToken);
     }
 
@@ -56,36 +50,30 @@ public class AuthService : IAuthService
         var user = await _userRepo.GetByRefreshTokenAsync(refreshToken);
 
         if (user is not null)
-            await _refreshTokenService.RevokeTokenAsync(user, refreshToken, ipAddress);
+        {
+            await _refreshTokenService.RevokeTokenAsync(
+                user,
+                refreshToken,
+                ipAddress);
+        }
     }
 
-    public async Task<(RefreshDto, RefreshToken)> RefreshAsync(string refreshToken, string ipAddress)
+    public async Task<(RefreshDto, RefreshToken)> RefreshAsync(
+        string refreshToken,
+        string ipAddress)
     {
-        var user = await _userRepo.GetByRefreshTokenAsync(refreshToken);
+        var user = await GetUserByRefreshTokenOrThrowAsync(refreshToken);
 
-        if (user is null)
-            throw new UnauthorizedException(InvalidCredentials);
+        ValidateRefreshToken(user, refreshToken);
 
-        var token = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken);
+        var (accessToken, newRefreshToken) = await IssueTokensAsync(user, refreshToken, ipAddress);
 
-        if (token is null || !token.IsActive)
-            throw new UnauthorizedException(InvalidCredentials);
-
-        var newAccessToken = await _tokenService.CreateAccessTokenAsync(user);
-        var newRefreshToken = await _refreshTokenService.RotateTokenAsync(user, refreshToken, ipAddress);
-
-        var dto = new RefreshDto
-        {
-            AccessToken = newAccessToken,
-        };
-
-        return (dto, newRefreshToken);
+        return (CreateRefreshDto(accessToken), newRefreshToken);
     }
 
     public async Task RegisterAsync(RegisterDto dto)
     {
-        if (await _userManager.FindByNameAsync(dto.Username) != null)
-            throw new ConflictException("Username is taken");
+        await EnsureUsernameAvailableAsync(dto.Username);
 
         var user = new User
         {
@@ -96,8 +84,79 @@ public class AuthService : IAuthService
         var result = await _userManager.CreateAsync(user, dto.Password);
 
         if (!result.Succeeded)
+        {
             throw new BadRequestException(string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
 
         await _userManager.AddToRoleAsync(user, Roles.User);
+    }
+
+    private async Task<User> ValidateCredentialsAsync(LoginDto dto)
+    {
+        var user = await _userManager.FindByNameAsync(dto.Username);
+
+        if (user is null)
+            throw new UnauthorizedException(InvalidCredentials);
+
+        var loginResult = await _signInManager.CheckPasswordSignInAsync(
+            user,
+            dto.Password,
+            false);
+
+        if (!loginResult.Succeeded)
+            throw new UnauthorizedException(InvalidCredentials);
+
+        return user;
+    }
+
+    private async Task<User> GetUserByRefreshTokenOrThrowAsync(string refreshToken)
+    {
+        var user = await _userRepo.GetByRefreshTokenAsync(refreshToken);
+
+        if (user is null)
+            throw new UnauthorizedException(InvalidCredentials);
+
+        return user;
+    }
+
+    private static void ValidateRefreshToken(User user, string refreshToken)
+    {
+        var token = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken);
+
+        if (token is null || !token.IsActive)
+        {
+            throw new UnauthorizedException(InvalidCredentials);
+        }
+    }
+
+    private async Task<(string AccessToken, RefreshToken RefreshToken)> IssueTokensAsync(
+        User user,
+        string? existingRefreshToken,
+        string ipAddress)
+    {
+        var accessToken = await _tokenService.CreateAccessTokenAsync(user);
+
+        var refreshToken = await _refreshTokenService.RotateTokenAsync(
+            user,
+            existingRefreshToken,
+            ipAddress);
+
+        return (accessToken, refreshToken);
+    }
+
+    private static RefreshDto CreateRefreshDto(string accessToken)
+    {
+        return new RefreshDto
+        {
+            AccessToken = accessToken
+        };
+    }
+
+    private async Task EnsureUsernameAvailableAsync(string username)
+    {
+        if (await _userManager.FindByNameAsync(username) is not null)
+        {
+            throw new ConflictException("Username is taken");
+        }
     }
 }
