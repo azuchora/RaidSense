@@ -2,6 +2,8 @@
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Models;
 using RaidSense.Server.Mappers;
+using RaidSense.Server.Exceptions.Http;
+using RaidSense.Server.Dtos.BattleMetrics.Server;
 
 namespace RaidSense.Server.Services
 {
@@ -20,69 +22,82 @@ namespace RaidSense.Server.Services
             _mapService = mapService;
         }
 
-        public Task<RustServer?> GetByIdAsync(string id)
-        {
-            return _rustServerRepo.GetByIdAsync(id);
-        }
-
-        public async Task<RustServer?> GetOrCreateAsync(string id)
+        public async Task<RustServer> GetByIdAsync(string id)
         {
             var server = await _rustServerRepo.GetByIdAsync(id);
+            return server ?? throw new NotFoundException("Server not found");
+        }
 
-            if (server != null)
-                return server;
+        public async Task<RustServer> EnsureExistsAsync(string id)
+        {
+            var existing = await _rustServerRepo.GetByIdAsync(id);
 
-            var bmResponse = await _bmService.GetServerDetailsAsync(id);
-            var rustServer = bmResponse?.ToRustServerEntity();
-            if (rustServer == null || bmResponse == null)
-                return null;
+            if (existing is not null)
+                return existing;
 
-            var map = bmResponse.ToMapEntity();
-            if (map == null) return null; // server doesnt support rustmaps
+            var bmServer = await GetBmServerOrThrowAsync(id);
+
+            var map = bmServer?.ToMapEntity() 
+                ?? throw new NotFoundException("Server does not support rustmaps");
             
-            await _mapService.CreateAsync(map);
-            await _rustServerRepo.AddAndSaveAsync(rustServer);
+            var server = bmServer.ToRustServerEntity();
 
-            return rustServer;
+            await _mapService.CreateAsync(map);
+            await _rustServerRepo.AddAndSaveAsync(server);
+
+            return server;
         }
 
         public async Task<List<RustServer>> GetAllAsync()
         {
-            var servers = await _rustServerRepo.GetAllAsync();
-            return servers.ToList();
+            return await _rustServerRepo.GetAllAsync();
         }
 
-        public async Task<bool> DeleteByIdAsync(string id)
+        public async Task DeleteByIdAsync(string id)
         {
-            return await _rustServerRepo.DeleteByIdAsync(id);
+            var deleted = await _rustServerRepo.DeleteByIdAsync(id);
+
+            if(!deleted) throw new NotFoundException("Server not found");
         }
 
-        public async Task<RustServer?> SyncServerAsync(string id)
+        public async Task<RustServer> SyncServerAsync(string id)
         {
-            var server = await _rustServerRepo.GetByIdAsync(id);
+            var server = await GetByIdAsync(id);
+            var bmServer = await GetBmServerOrThrowAsync(id);
 
-            if (server == null) return null;
-
-            var bmServer = await _bmService.GetServerDetailsAsync(id);
-
-            if (bmServer == null) return null;
-            
             server.Name = bmServer.Name;
             server.LastFetched = DateTime.UtcNow;
 
-            var newMap = bmServer.ToMapEntity();
-            if (newMap != null && newMap.Id != server.MapId)
-            {
-                var existingMap = await _mapService.GetByIdAsync(newMap.Id);
-                if (existingMap == null)
-                    await _mapService.CreateAsync(newMap);
-
-                server.MapId = newMap.Id;
-
-            }
+            await SyncMap(server, bmServer);
             await _rustServerRepo.UpdateAsync(server);
 
             return server;
+        }
+
+        private async Task SyncMap(RustServer server, BmServerDto bmServer)
+        {
+            var newMap = bmServer.ToMapEntity();
+
+            if(newMap is null || newMap.Id == server.MapId)
+                return;
+
+            try
+            {
+                await _mapService.GetByIdAsync(newMap.Id);
+            }
+            catch (NotFoundException)
+            {
+                await _mapService.CreateAsync(newMap);
+            }
+
+            server.MapId = newMap.Id;
+        }
+
+        private async Task<BmServerDto> GetBmServerOrThrowAsync(string id)
+        {
+            var server = await _bmService.GetServerDetailsAsync(id);
+
+            return server ?? throw new NotFoundException("Server not found in BattleMetrics");
         }
     }
 }

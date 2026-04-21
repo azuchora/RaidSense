@@ -35,7 +35,7 @@ namespace RaidSense.Server.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<MapDto>> EnsureExists([FromRoute] string id)
         {
-            var map = await _mapService.GetOrCreateAsync(id);
+            var map = await _mapService.EnsureExistsAsync(id);
 
             var dto = map.ToDto();
 

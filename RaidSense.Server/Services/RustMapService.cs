@@ -43,7 +43,7 @@ namespace RaidSense.Server.Services
             return map ?? throw new NotFoundException("Map not found");
         }
 
-        public async Task<RustMap> GetOrCreateAsync(string id)
+        public async Task<RustMap> EnsureExistsAsync(string id)
         {
             var existing = await _mapRepo.GetByIdAsync(id);
             if (existing is not null) return existing;

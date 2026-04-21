@@ -8,7 +8,7 @@ namespace RaidSense.Server.Interfaces.Services
         Task<List<RustMap>> GetAllAsync();
         Task DeleteByIdAsync(string id);
         Task<RustMap> CreateAsync(RustMap map);
-        Task<RustMap> GetOrCreateAsync(string id);
+        Task<RustMap> EnsureExistsAsync(string id);
         Task<RustMap> SyncMapAsync(string id);
     }
 }

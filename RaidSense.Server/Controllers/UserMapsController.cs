@@ -73,7 +73,7 @@ namespace RaidSense.Server.Controllers
             if (userMap == null)
                 return NotFound();
 
-            var rustMap = await _rustMapService.GetOrCreateAsync(rustMapId);
+            var rustMap = await _rustMapService.EnsureExistsAsync(rustMapId);
             if (rustMap == null)
                 return BadRequest("Map id is invalid.");
 
