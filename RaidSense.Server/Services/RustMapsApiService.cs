@@ -3,13 +3,11 @@ using RaidSense.Server.Interfaces.Services;
 
 namespace RaidSense.Server.Services
 {
-    public class RustMapsApiService : IRustMapsApiService
+    public class RustMapsApiService : ExternalApiService, IRustMapsApiService
     {
-        private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;
-        public RustMapsApiService(HttpClient httpClient, IConfiguration config)
+        public RustMapsApiService(HttpClient httpClient, IConfiguration config) : base(httpClient)
         {
-            _httpClient = httpClient;   
             _config = config;
 
             var apiToken = _config["RustMaps:ApiToken"];
@@ -21,20 +19,9 @@ namespace RaidSense.Server.Services
         public async Task<RustMapsDataDto?> GetRustMapDetailsAsync(string mapId)
         {
             var url = $"https://api.rustmaps.com/v4/maps/{mapId}";
-
-            try
-            {
-                var response = await _httpClient.GetAsync(url);
-                if (!response.IsSuccessStatusCode) return null;
-
-                var result = await response.Content.ReadFromJsonAsync<RustMapsResponseDto>();
-
-                return result?.Data;
-            }
-            catch (HttpRequestException)
-            {
-                return null;
-            }
+            var response = await GetAsync<RustMapsResponseDto>(url);
+            
+            return response?.Data;
         }
     }
 }
