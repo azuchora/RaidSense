@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RaidSense.Server.Dtos.Map;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
 
 namespace RaidSense.Server.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MapsController : ControllerBase

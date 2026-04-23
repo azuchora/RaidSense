@@ -10,6 +10,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddDatabaseAndIdentity(builder.Configuration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAppSecurity();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
 

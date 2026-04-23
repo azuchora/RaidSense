@@ -20,7 +20,7 @@ namespace RaidSense.Server.Services
         public async Task<UserMap> CreateAsync(UserMap userMap)
         {
             await _userMapRepo.AddAndSaveAsync(userMap);
-            await _mapUserService.GrantAccessAsync(userMap.OwnerId, userMap.Id, MapRole.Owner);
+            await _mapUserService.AssignOwnerAsync(userMap.OwnerId, userMap.Id);
             return await GetByIdDetailedAsync(userMap.Id) ?? userMap;
         }
 

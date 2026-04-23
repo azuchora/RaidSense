@@ -5,5 +5,6 @@ namespace RaidSense.Server.Interfaces.Services
 {
     public interface IMapUserRepository : IGenericRepository<MapUser, int>
     {
+        Task<MapUser?> GetMapUserAsync(string userId, int mapId);
     }
 }

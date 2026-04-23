@@ -21,9 +21,9 @@ namespace RaidSense.Server.Services
             }
         }
 
-        public async Task<BmPlayerDto?> GetPlayerDetailsAsync(string playerId)
+        public Task<BmPlayerDto?> GetPlayerDetailsAsync(string playerId)
         {
-            var url = $"https://api.battlemetrics.com/players/{playerId}";
+            // var url = $"https://api.battlemetrics.com/players/{playerId}";
             // var response = await GetAsync<BmPlayerResponseDto>(url);
             throw new NotImplementedException();
         }

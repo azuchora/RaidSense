@@ -1,72 +1,50 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RaidSense.Server.Extensions;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Models;
+using RaidSense.Server.Security.Policies;
 
 namespace RaidSense.Server.Controllers
 {
+    [Authorize]
     [Route("api/usermaps/{mapId:int}/users")]
     [ApiController]
-    [Authorize]
     public class MapUsersController : ControllerBase
     {
         private readonly IMapUserService _mapUserService;
-        private readonly UserManager<User> _userManager;
-        public MapUsersController(IMapUserService mapUserService, UserManager<User> userManager)
+        public MapUsersController(IMapUserService mapUserService)
         {
             _mapUserService = mapUserService;
-            _userManager = userManager;
         }
 
-        private async Task<(string? userId, IActionResult? errorResult)> ValidateUserAndRolesAsync(string username, int mapId, MapRole? newRole)
+        [HttpPost("{userId}")]
+        [Authorize(Policy = PolicyNames.MapAdmin)]
+        public async Task<IActionResult> GrantAccess([FromRoute] string userId, int mapId)
         {
-            var invokerId = User.GetId();
-
-            var foundUser = await _userManager.FindByNameAsync(username);
-            if (foundUser == null)
-                return (null, NotFound("User not found"));
-
-            if (!await _mapUserService.HasRoleAsync(invokerId, mapId, MapRole.Admin))
-                return (null, Forbid());
-
-            if (newRole != null && newRole > MapRole.Admin)
-                return (null, BadRequest("You can only assign roles up to Admin"));
-
-            return (foundUser.Id, null);
+            await _mapUserService.GrantAccessAsync(GetInvokerId(), userId, mapId);
+            return Ok();
         }
 
-        [HttpPost("{username}")]
-        public async Task<IActionResult> GrantAccess([FromRoute] string username, int mapId, [FromQuery] MapRole role)
+        [HttpPut("{userId}")]
+        [Authorize(Policy = PolicyNames.MapAdmin)]
+        public async Task<IActionResult> UpdateRole([FromRoute] string userId, int mapId, [FromQuery] MapRole role)
         {
-            var (userId, error) = await ValidateUserAndRolesAsync(username, mapId, role);
-            if (error != null) return error;
-
-            var success = await _mapUserService.GrantAccessAsync(userId!, mapId, role);
-
-            return success ? Ok() : BadRequest();
+            await _mapUserService.UpdateRoleAsync(GetInvokerId(), userId, mapId, role);
+            return Ok();
         }
 
-        [HttpPut("{username}")]
-        public async Task<IActionResult> UpdateRole([FromRoute] string username, int mapId, [FromQuery] MapRole role)
+        [HttpDelete("{userId}")]
+        [Authorize(Policy = PolicyNames.MapAdmin)]
+        public async Task<IActionResult> RevokeAccess([FromRoute] string userId, int mapId)
         {
-            var (userId, error) = await ValidateUserAndRolesAsync(username, mapId, role);
-            if (error != null) return error;
-
-            var success = await _mapUserService.UpdateRoleAsync(userId!, mapId, role);
-            return success ? Ok() : BadRequest();
+            await _mapUserService.RevokeAccessAsync(GetInvokerId(), userId, mapId);
+            return Ok();
         }
 
-        [HttpDelete("{username}")]
-        public async Task<IActionResult> RevokeAccess([FromRoute] string username, int mapId)
+        private string GetInvokerId()
         {
-            var (userId, error) = await ValidateUserAndRolesAsync(username, mapId, null);
-            if (error != null) return error;
-
-            var success = await _mapUserService.RevokeAccessAsync(userId!, mapId);
-            return success ? Ok() : BadRequest();
+            return User.GetId();
         }
     }
 }
