@@ -8,11 +8,11 @@ namespace RaidSense.Server.Security.Handlers;
 
 public class MapAccessHandler : AuthorizationHandler<MapAccessRequirement>
 {
-    private readonly IMapUserService _mapUserService;
+    private readonly IMapAccessService _mapUserService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public MapAccessHandler(
-        IMapUserService mapUserService,
+        IMapAccessService mapUserService,
         IHttpContextAccessor httpContextAccessor
     )
     {

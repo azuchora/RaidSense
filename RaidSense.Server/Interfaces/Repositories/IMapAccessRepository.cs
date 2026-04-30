@@ -3,7 +3,7 @@ using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Interfaces.Services
 {
-    public interface IMapUserRepository : IGenericRepository<MapUser, int>
+    public interface IMapAccessRepository : IGenericRepository<MapUser, int>
     {
         Task<MapUser?> GetMapUserAsync(string userId, int mapId);
     }

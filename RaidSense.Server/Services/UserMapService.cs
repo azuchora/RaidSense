@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RaidSense.Server.Dtos.UserMap;
+using RaidSense.Server.Dtos.Maps;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Models;
 using RaidSense.Server.Interfaces.Repositories;
@@ -10,8 +10,8 @@ namespace RaidSense.Server.Services
     public class UserMapService : IUserMapService
     {
         private readonly IUserMapRepository _userMapRepo;
-        private readonly IMapUserService _mapUserService;
-        public UserMapService(IUserMapRepository userMapRepo, IMapUserService mapUserService)
+        private readonly IMapAccessService _mapUserService;
+        public UserMapService(IUserMapRepository userMapRepo, IMapAccessService mapUserService)
         {
             _userMapRepo = userMapRepo;
             _mapUserService = mapUserService;
@@ -59,14 +59,14 @@ namespace RaidSense.Server.Services
             return userMap;
         }
 
-        public async Task<List<UserMapDto>> GetAllDtosByOwnerAsync(string ownerId)
+        public async Task<List<MapDto>> GetAllDtosByOwnerAsync(string ownerId)
         {
             return await _userMapRepo.GetQueryable()
                 .Where(um => um.OwnerId == ownerId)
                 .Include(um => um.Map)
                 .Include(um => um.MapUsers)
                 .Include(um => um.Bases)
-                .Select(um => new UserMapDto
+                .Select(um => new MapDto
                 {
                     Id = um.Id,
                     OwnerId = um.OwnerId,

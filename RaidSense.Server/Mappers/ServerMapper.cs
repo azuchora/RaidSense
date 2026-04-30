@@ -1,13 +1,13 @@
-﻿using RaidSense.Server.Dtos.RustServer;
+﻿using RaidSense.Server.Dtos.Servers;
 using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Mappers
 {
-    public static class RustServerMapper
+    public static class ServerMapper
     {
-        public static RustServerDto ToDto(this RustServer rustServer)
+        public static ServerDto ToDto(this RustServer rustServer)
         {
-            return new RustServerDto
+            return new ServerDto
             {
                 Id = rustServer.Id,
                 Name = rustServer.Name,

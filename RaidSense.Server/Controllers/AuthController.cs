@@ -7,7 +7,7 @@ using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {

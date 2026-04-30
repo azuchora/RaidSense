@@ -1,6 +1,6 @@
-﻿namespace RaidSense.Server.Dtos.RustServer
+﻿namespace RaidSense.Server.Dtos.Servers
 {
-    public class RustServerDto
+    public class ServerDto
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;

@@ -5,9 +5,9 @@ using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Repositories
 {
-    public class MapUserRepository : GenericRepository<MapUser, int>, IMapUserRepository
+    public class MapAccessRepository : GenericRepository<MapUser, int>, IMapAccessRepository
     {
-        public MapUserRepository(AppDbContext context) : base(context) { }
+        public MapAccessRepository(AppDbContext context) : base(context) { }
 
         public async Task<MapUser?> GetMapUserAsync(string userId, int mapId)
         {

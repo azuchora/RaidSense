@@ -1,16 +1,14 @@
-﻿namespace RaidSense.Server.Dtos.Map
+﻿using RaidSense.Server.Dtos.Bases;
+using RaidSense.Server.Dtos.RustMaps;
+
+namespace RaidSense.Server.Dtos.Maps
 {
     public class MapDto
     {
-        public string Id { get; set; } = string.Empty;
-        public int Seed { get; set; }
-        public int Size { get; set; }
-        public bool IsCustomMap { get; set; }
-        public bool IsStaging { get; set; }
-        public string RawImageUrl { get; set; } = string.Empty;
-        public string ImageUrl { get; set; } = string.Empty;
-        public string ThumbnailUrl { get; set; } = string.Empty;
-        public string Url {  get; set; } = string.Empty;
-        public bool IsPopulated { get; set; }
+        public int Id { get; set; }
+        public string OwnerId { get; set; } = string.Empty;
+        public RustMapDto? Map { get; set; }
+        public List<MapUserDto>? MapUsers { get; set; }
+        public List<BaseDto>? Bases { get; set; }
     }
 }

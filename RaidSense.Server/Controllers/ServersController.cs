@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RaidSense.Server.Dtos.RustServer;
+using RaidSense.Server.Dtos.Servers;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
 
 namespace RaidSense.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/servers")]
     [ApiController]
     public class ServersController : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace RaidSense.Server.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<RustServerDto>> GetById([FromRoute] string id)
+        public async Task<ActionResult<ServerDto>> GetById([FromRoute] string id)
         {
             var server = await _rustServerService.GetByIdAsync(id);
 
@@ -24,7 +24,7 @@ namespace RaidSense.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<RustServerDto>> EnsureExists([FromRoute] string id)
+        public async Task<ActionResult<ServerDto>> EnsureExists([FromRoute] string id)
         {
             var server = await _rustServerService.EnsureExistsAsync(id);
 
@@ -32,7 +32,7 @@ namespace RaidSense.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RustServerDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<ServerDto>>> GetAll()
         {
             var servers = await _rustServerService.GetAllAsync();
             var dtos = servers.Select(s => s.ToDto());
@@ -49,7 +49,7 @@ namespace RaidSense.Server.Controllers
         }
 
         [HttpPost("{id}/sync")]
-        public async Task<ActionResult<RustServerDto>> SyncServer([FromRoute] string id)
+        public async Task<ActionResult<ServerDto>> SyncServer([FromRoute] string id)
         {
             var server = await _rustServerService.SyncServerAsync(id);
             

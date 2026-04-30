@@ -8,12 +8,12 @@ using RaidSense.Server.Security.Policies;
 namespace RaidSense.Server.Controllers
 {
     [Authorize]
-    [Route("api/usermaps/{mapId:int}/users")]
+    [Route("api/maps/{mapId:int}/access")]
     [ApiController]
-    public class MapUsersController : ControllerBase
+    public class MapAccessController : ControllerBase
     {
-        private readonly IMapUserService _mapUserService;
-        public MapUsersController(IMapUserService mapUserService)
+        private readonly IMapAccessService _mapUserService;
+        public MapAccessController(IMapAccessService mapUserService)
         {
             _mapUserService = mapUserService;
         }

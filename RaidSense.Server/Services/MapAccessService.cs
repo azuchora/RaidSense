@@ -4,12 +4,12 @@ using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Services
 {
-    public class MapUserService : IMapUserService
+    public class MapAccessService : IMapAccessService
     {
-        private readonly IMapUserRepository _mapUserRepo;
-        public MapUserService(IMapUserRepository mapUserRepo)
+        private readonly IMapAccessRepository _mapAccessRepo;
+        public MapAccessService(IMapAccessRepository mapAccessRepo)
         {
-            _mapUserRepo = mapUserRepo;
+            _mapAccessRepo = mapAccessRepo;
         }
 
         public async Task GrantAccessAsync(string invokerId, string userId, int userMapId)
@@ -27,7 +27,7 @@ namespace RaidSense.Server.Services
                 Role = MapRole.Viewer
             };
 
-            await _mapUserRepo.AddAndSaveAsync(newMapUser);
+            await _mapAccessRepo.AddAndSaveAsync(newMapUser);
         }
 
         public async Task RevokeAccessAsync(string invokerId, string userId, int userMapId)
@@ -37,7 +37,7 @@ namespace RaidSense.Server.Services
 
             await ValidateRoleRevokeAsync(invokerId, mapUser, userMapId);
 
-            await _mapUserRepo.DeleteAsync(mapUser);
+            await _mapAccessRepo.DeleteAsync(mapUser);
         }
 
         public async Task UpdateRoleAsync(string invokerId, string userId, int userMapId, MapRole newRole)
@@ -49,7 +49,7 @@ namespace RaidSense.Server.Services
 
             mapUser.Role = newRole;
 
-            await _mapUserRepo.UpdateAsync(mapUser);
+            await _mapAccessRepo.UpdateAsync(mapUser);
         }
 
         public async Task<bool> HasRoleAsync(string userId, int mapId, MapRole minimumRole)
@@ -72,12 +72,12 @@ namespace RaidSense.Server.Services
                 Role = MapRole.Owner
             };
 
-            await _mapUserRepo.AddAndSaveAsync(newMapUser);
+            await _mapAccessRepo.AddAndSaveAsync(newMapUser);
         }
 
         private async Task<MapUser?> GetMapUserAsync(string userId, int mapId)
         {
-            return await _mapUserRepo.GetMapUserAsync(userId, mapId);
+            return await _mapAccessRepo.GetMapUserAsync(userId, mapId);
         }
 
         private async Task<MapUser> GetMapUserOrThrowAsync(string userId, int mapId)

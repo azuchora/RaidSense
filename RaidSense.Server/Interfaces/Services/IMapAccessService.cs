@@ -2,7 +2,7 @@
 
 namespace RaidSense.Server.Interfaces.Services
 {
-    public interface IMapUserService
+    public interface IMapAccessService
     {
         Task GrantAccessAsync(string invokerId, string userId, int userMapId);
         Task RevokeAccessAsync(string invokerId, string userId, int userMapId);

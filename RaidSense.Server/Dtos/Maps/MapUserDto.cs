@@ -1,6 +1,6 @@
 ﻿using RaidSense.Server.Models;
 
-namespace RaidSense.Server.Dtos.MapUsers
+namespace RaidSense.Server.Dtos.Maps
 {
     public class MapUserDto
     {
