@@ -23,10 +23,11 @@ public class ExceptionMiddleware
             context.Response.StatusCode = ex.StatusCode;
             await context.Response.WriteAsJsonAsync(new { error = ex.Message });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             context.Response.StatusCode = 500;
-            await context.Response.WriteAsJsonAsync(new { error = "Internal server error" });
+            // await context.Response.WriteAsJsonAsync(new { error = "Internal server error" });
+            await context.Response.WriteAsJsonAsync(new { error =  ex.Message });
         }
     }
 }

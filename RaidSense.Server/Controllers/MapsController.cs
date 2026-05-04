@@ -4,6 +4,8 @@ using RaidSense.Server.Dtos.Maps;
 using RaidSense.Server.Extensions;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
+using RaidSense.Server.Models;
+using RaidSense.Server.Security.Policies;
 
 namespace RaidSense.Server.Controllers
 {
@@ -13,38 +15,33 @@ namespace RaidSense.Server.Controllers
     public class MapsController : ControllerBase
     {
         private readonly IUserMapService _userMapService;
-        private readonly IRustMapService _rustMapService;
-        public MapsController(IUserMapService userMapService, IRustMapService rustMapService)
+        public MapsController(IUserMapService userMapService)
         {
             _userMapService = userMapService;
-            _rustMapService = rustMapService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MapDto>>> GetMaps()
         {
-            var userId = User.GetId();
-            var dtos = await _userMapService.GetAllDtosByOwnerAsync(userId);
+            var maps = await _userMapService.GetAllAccesibleAsync(GetInvokerId(), MapRole.Viewer);
+            var dtos = maps.Select(m => m.ToDto()).ToList();
             return Ok(dtos);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<MapDto>> GetById([FromRoute] int id)
+        [HttpGet("{mapId:int}")]
+        [Authorize(Policy = PolicyNames.MapViewer)]
+        public async Task<ActionResult<MapDto>> GetById([FromRoute] int mapId)
         {
-            var map = await _userMapService.GetByIdDetailedAsync(id);
-            if (map == null)
-                return NotFound();
+            var map = await _userMapService.GetByIdDetailedAsync(User.GetId(), mapId);
 
             return Ok(map.ToDto());
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+        [HttpDelete("{mapId:int}")]
+        [Authorize(Policy = PolicyNames.MapOwner)]
+        public async Task<IActionResult> Delete([FromRoute] int mapId)
         {
-            var userId = User.GetId();
-            var deleted = await _userMapService.DeleteIfOwnerAsync(id, userId);
-            if (!deleted)
-                return NotFound();
+            await _userMapService.DeleteByIdAsync(User.GetId(), mapId);
 
             return NoContent();
         }
@@ -52,34 +49,24 @@ namespace RaidSense.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<MapDto>> Create([FromBody] CreateMapDto dto)
         {
-            var userId = User.GetId();
-            var userMap = dto.ToEntity(userId);
+            var map = dto.ToEntity(GetInvokerId());
 
-            var newMap = await _userMapService.CreateAsync(userMap);
+            var newMap = await _userMapService.CreateAsync(map);
 
-            return CreatedAtAction(nameof(GetById), new { id = newMap.Id }, newMap.ToDto());
+            return CreatedAtAction(nameof(GetById), new { mapId = newMap.Id }, newMap.ToDto());
         }
 
-        [HttpPatch("{id:int}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateMapDto dto)
+        [HttpPatch("{mapId:int}")]
+        [Authorize(Policy = PolicyNames.MapAdmin)]
+        public async Task<IActionResult> Update([FromRoute] int mapId, [FromBody] UpdateMapDto dto)
         {
-            var rustMapId = dto.MapId;
-            if (rustMapId == null)
-                return BadRequest("Map id is required");
+            await _userMapService.UpdateAsync(User.GetId(), mapId, dto.MapId);
+            return NoContent();
+        }
 
-            var userMap = await _userMapService.GetByIdAsync(id);
-            if (userMap == null)
-                return NotFound();
-
-            var rustMap = await _rustMapService.EnsureExistsAsync(rustMapId);
-            if (rustMap == null)
-                return BadRequest("Map id is invalid.");
-
-            userMap.MapId = rustMapId;
-            userMap.Map = rustMap;
-            
-            await _userMapService.UpdateAsync(userMap);
-            return Ok();
+        private string GetInvokerId()
+        {
+            return User.GetId();
         }
     }
 }

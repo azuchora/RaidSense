@@ -9,6 +9,14 @@ namespace RaidSense.Server.Repositories
     {
         public MapAccessRepository(AppDbContext context) : base(context) { }
 
+        public async Task<List<int>> GetAccessibleMapIdsAsync(string userId, MapRole minimumRole)
+        {
+            return await GetQueryable()
+                .Where(x => x.UserId == userId && x.Role >= minimumRole)
+                .Select(x => x.MapId)
+                .ToListAsync();
+        }
+
         public async Task<MapUser?> GetMapUserAsync(string userId, int mapId)
         {
             return await GetQueryable()
