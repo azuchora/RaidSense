@@ -1,106 +1,69 @@
-﻿using Microsoft.EntityFrameworkCore;
-using RaidSense.Server.Dtos.UserMap;
-using RaidSense.Server.Interfaces.Services;
+﻿using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Models;
 using RaidSense.Server.Interfaces.Repositories;
-using RaidSense.Server.Mappers;
+using RaidSense.Server.Exceptions.Http;
 
 namespace RaidSense.Server.Services
 {
     public class UserMapService : IUserMapService
     {
         private readonly IUserMapRepository _userMapRepo;
-        private readonly IMapUserService _mapUserService;
-        public UserMapService(IUserMapRepository userMapRepo, IMapUserService mapUserService)
+        private readonly IMapAccessService _mapAccessService;
+        private readonly IRustMapService _rustMapService;
+        public UserMapService(IUserMapRepository userMapRepo, IMapAccessService mapAccessService, IRustMapService rustMapService)
         {
             _userMapRepo = userMapRepo;
-            _mapUserService = mapUserService;
+            _mapAccessService = mapAccessService;
+            _rustMapService = rustMapService;
+        }
+
+        public async Task<List<UserMap>> GetAllAccesibleAsync(string invokerId, MapRole minimumRole)
+        {
+            var ids = await _mapAccessService.GetAccessibleMapIdsAsync(invokerId, minimumRole);
+            var maps = await _userMapRepo.GetByIdsAsync(ids);
+            return maps;
         }
 
         public async Task<UserMap> CreateAsync(UserMap userMap)
         {
             await _userMapRepo.AddAndSaveAsync(userMap);
-            await _mapUserService.GrantAccessAsync(userMap.OwnerId, userMap.Id, MapRole.Owner);
-            return await GetByIdDetailedAsync(userMap.Id) ?? userMap;
+            await _mapAccessService.AssignOwnerAsync(userMap.OwnerId, userMap.Id);
+            return await GetByIdDetailedAsync(userMap.OwnerId, userMap.Id);
         }
 
-        public async Task<bool> DeleteByIdAsync(int id)
+        public async Task DeleteByIdAsync(string invokerId, int mapId)
         {
-            return await _userMapRepo.DeleteByIdAsync(id);
+            await _mapAccessService.EnsureOwnerAsync(invokerId, mapId);
+            await _userMapRepo.DeleteByIdAsync(mapId);
         }
 
-        public async Task<List<UserMap>> GetAllByOwnerAsync(string ownerId)
+
+        public async Task<UserMap> GetByIdDetailedAsync(string invokerId, int mapId)
         {
-            var query = _userMapRepo.GetQueryable();
+            await _mapAccessService.EnsureViewerAsync(invokerId, mapId);
 
-            var userMaps = await query
-                .Where(um => um.OwnerId == ownerId)
-                .ToListAsync();
-
-            return userMaps;
+            var map = await _userMapRepo.GetByIdDetailedAsync(mapId);
+            return map ?? throw new NotFoundException("Map not found");
         }
 
-        public async Task<UserMap?> GetByIdAsync(int id)
+        public async Task UpdateAsync(string invokerId, int mapId, string rustMapId)
         {
-            return await _userMapRepo.GetByIdAsync(id);
-        }
+            await _mapAccessService.EnsureAdminAsync(invokerId, mapId);
 
-        public async Task<UserMap?> GetByIdDetailedAsync(int id)
-        {
-            var query = _userMapRepo.GetQueryable();
+            var userMap = await GetByIdAsync(mapId);
 
-            var userMap = await query
-                .Include(um => um.Map)
-                .Include(um => um.Bases)
-                .Include(um => um.MapUsers)
-                    .ThenInclude(mu => mu.User)
-                .SingleOrDefaultAsync(um => um.Id == id);
+            var rustMap = await _rustMapService.EnsureExistsAsync(rustMapId);
 
-            return userMap;
-        }
-
-        public async Task<List<UserMapDto>> GetAllDtosByOwnerAsync(string ownerId)
-        {
-            return await _userMapRepo.GetQueryable()
-                .Where(um => um.OwnerId == ownerId)
-                .Include(um => um.Map)
-                .Include(um => um.MapUsers)
-                .Include(um => um.Bases)
-                .Select(um => new UserMapDto
-                {
-                    Id = um.Id,
-                    OwnerId = um.OwnerId,
-                    Map = um.Map.ToDto(),
-                    MapUsers = um.MapUsers.Select(mu => mu.ToDto()).ToList(),
-                    Bases = um.Bases.Select(b => b.ToDto()).ToList(),
-                })
-                .ToListAsync();
-        }
-
-        public async Task<bool> DeleteIfOwnerAsync(int mapId, string userId)
-        {
-            var map = await GetByIdAsync(mapId);
-            if (map == null || map.OwnerId != userId)
-                return false;
-
-            await DeleteByIdAsync(mapId);
-            return true;
-        }
-
-        public async Task<bool> UpdateRustMapAsync(int id, string newRustMapId)
-        {
-            var map = await GetByIdAsync(id);
-            if (map == null)
-                return false;
-
-            map.MapId = newRustMapId;
-            await _userMapRepo.UpdateAsync(map);
-            return true;
-        }
-
-        public async Task UpdateAsync(UserMap userMap)
-        {
+            userMap.MapId = rustMapId;
+            userMap.Map = rustMap;
+            
             await _userMapRepo.UpdateAsync(userMap);
+        }
+
+        private async Task<UserMap> GetByIdAsync(int id)
+        {
+            var map = await _userMapRepo.GetByIdAsync(id);
+            return map ?? throw new NotFoundException("Map not found");
         }
     }
 }

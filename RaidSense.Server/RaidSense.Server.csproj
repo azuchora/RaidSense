@@ -34,4 +34,12 @@
     </ProjectReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Middleware/" />
+    <Folder Include="Security/" />
+    <Folder Include="Security/Handlers/" />
+    <Folder Include="Security/Policies/" />
+    <Folder Include="Security/Requirements/" />
+  </ItemGroup>
+
 </Project>

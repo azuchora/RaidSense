@@ -1,74 +1,59 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RaidSense.Server.Dtos.RustServer;
+using RaidSense.Server.Dtos.Servers;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
 
 namespace RaidSense.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/servers")]
     [ApiController]
     public class ServersController : ControllerBase
     {
-        private IRustServerService _rustServerService;
+        private readonly IRustServerService _rustServerService;
         public ServersController(IRustServerService rustServerService)
         {
             _rustServerService = rustServerService;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<RustServerDto>> GetById([FromRoute] string id)
+        public async Task<ActionResult<ServerDto>> GetById([FromRoute] string id)
         {
             var server = await _rustServerService.GetByIdAsync(id);
 
-            if (server == null)
-                return NotFound();
-
-            var dto = server.ToDto();
-
-            return Ok(dto);
+            return Ok(server.ToDto());
         }
 
-        [HttpPost("{id}")]
-        public async Task<ActionResult<RustServerDto>> CreateOrGetById([FromRoute] string id)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ServerDto>> EnsureExists([FromRoute] string id)
         {
-            var server = await _rustServerService.GetOrCreateAsync(id);
+            var server = await _rustServerService.EnsureExistsAsync(id);
 
-            if (server == null)
-                return NotFound("Server not found or it doesnt support rustmaps");
-
-            var dto = server.ToDto();
-
-            return CreatedAtAction(nameof(GetById), new { id = server.Id }, dto); 
+            return CreatedAtAction(nameof(GetById), new { id = server.Id }, server.ToDto()); 
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<RustServerDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<ServerDto>>> GetAll()
         {
             var servers = await _rustServerService.GetAllAsync();
             var dtos = servers.Select(s => s.ToDto());
 
-            return Ok(dtos);
+            return Ok();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteById([FromRoute] string id)
         {
-            var result = await _rustServerService.DeleteByIdAsync(id);
+            await _rustServerService.DeleteByIdAsync(id);
 
-            return result ? NoContent() : NotFound();
+            return NoContent();
         }
 
         [HttpPost("{id}/sync")]
-        public async Task<ActionResult<RustServerDto>> SyncServer([FromRoute] string id)
+        public async Task<ActionResult<ServerDto>> SyncServer([FromRoute] string id)
         {
             var server = await _rustServerService.SyncServerAsync(id);
-
-            if (server == null)
-                return NotFound();
-
-            var dto = server.ToDto();
             
-            return Ok(dto);
+            return Ok(server.ToDto());
         }
     }
 }

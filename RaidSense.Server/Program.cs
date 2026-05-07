@@ -1,4 +1,5 @@
 using RaidSense.Server.Extensions;
+using RaidSense.Server.Middleware;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ builder.Services.AddControllers()
 
 builder.Services.AddDatabaseAndIdentity(builder.Configuration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAppSecurity();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
 
@@ -16,6 +18,8 @@ builder.Services.AddRepositories();
 builder.Services.AddAppServices();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

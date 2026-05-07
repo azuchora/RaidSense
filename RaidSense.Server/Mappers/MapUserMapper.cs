@@ -1,4 +1,4 @@
-﻿using RaidSense.Server.Dtos.MapUsers;
+﻿using RaidSense.Server.Dtos.Maps;
 using RaidSense.Server.Models;
 
 namespace RaidSense.Server.Mappers

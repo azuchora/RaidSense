@@ -1,16 +1,13 @@
-﻿using RaidSense.Server.Dtos.Map;
+﻿using RaidSense.Server.Dtos.RustMaps;
 using RaidSense.Server.Models;
-using System.Drawing;
-using System;
-using RaidSense.Server.Dtos.RustMaps;
 
 namespace RaidSense.Server.Mappers
 {
     public static class MapMapper
     {
-        public static MapDto ToDto(this RustMap map)
+        public static RustMapDto ToDto(this RustMap map)
         {
-            return new MapDto
+            return new RustMapDto
             {
                 Id = map.Id,
                 Seed = map.Seed,

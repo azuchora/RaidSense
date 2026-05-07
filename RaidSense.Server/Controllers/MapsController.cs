@@ -1,73 +1,72 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RaidSense.Server.Dtos.Map;
+using RaidSense.Server.Dtos.Maps;
+using RaidSense.Server.Extensions;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
+using RaidSense.Server.Models;
+using RaidSense.Server.Security.Policies;
 
 namespace RaidSense.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/maps")]
     [ApiController]
+    [Authorize]
     public class MapsController : ControllerBase
     {
-        private readonly IRustMapService _mapService;
-        public MapsController(IRustMapService mapService)
+        private readonly IUserMapService _userMapService;
+        public MapsController(IUserMapService userMapService)
         {
-            _mapService = mapService;
+            _userMapService = userMapService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MapDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<MapDto>>> GetMaps()
         {
-            var maps = await _mapService.GetAllAsync();
-            var dtos = maps.Select(map => map.ToDto());
-
+            var maps = await _userMapService.GetAllAccesibleAsync(GetInvokerId(), MapRole.Viewer);
+            var dtos = maps.Select(m => m.ToDto()).ToList();
             return Ok(dtos);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<MapDto>> GetById([FromRoute] string id)
+        [HttpGet("{mapId:int}")]
+        [Authorize(Policy = PolicyNames.MapViewer)]
+        public async Task<ActionResult<MapDto>> GetById([FromRoute] int mapId)
         {
-            var map = await _mapService.GetByIdAsync(id);
-
-            if (map == null)
-                return NotFound();
+            var map = await _userMapService.GetByIdDetailedAsync(User.GetId(), mapId);
 
             return Ok(map.ToDto());
         }
 
-        [HttpPost("{id}")]
-        public async Task<ActionResult<MapDto>> CreateOrGetById([FromRoute] string id)
+        [HttpDelete("{mapId:int}")]
+        [Authorize(Policy = PolicyNames.MapOwner)]
+        public async Task<IActionResult> Delete([FromRoute] int mapId)
         {
-            var map = await _mapService.GetOrCreateAsync(id);
+            await _userMapService.DeleteByIdAsync(User.GetId(), mapId);
 
-            if (map == null)
-                return NotFound();
-
-            var dto = map.ToDto();
-
-            return CreatedAtAction(nameof(GetById), new { id = map.Id }, dto);
+            return NoContent();
         }
 
-        [HttpPost("{id}/sync")]
-        public async Task<ActionResult<MapDto>> SyncMap([FromRoute] string id)
+        [HttpPost]
+        public async Task<ActionResult<MapDto>> Create([FromBody] CreateMapDto dto)
         {
-            var map = await _mapService.SyncMapAsync(id);
+            var map = dto.ToEntity(GetInvokerId());
 
-            if(map == null) 
-                return NotFound();
+            var newMap = await _userMapService.CreateAsync(map);
 
-            var dto = map.ToDto();
-            
-            return Ok(map.ToDto());
+            return CreatedAtAction(nameof(GetById), new { mapId = newMap.Id }, newMap.ToDto());
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteById([FromRoute] string id)
+        [HttpPatch("{mapId:int}")]
+        [Authorize(Policy = PolicyNames.MapAdmin)]
+        public async Task<IActionResult> Update([FromRoute] int mapId, [FromBody] UpdateMapDto dto)
         {
-            var result = await _mapService.DeleteByIdAsync(id);
+            await _userMapService.UpdateAsync(User.GetId(), mapId, dto.MapId);
+            return NoContent();
+        }
 
-            return result ? NoContent() : NotFound();
+        private string GetInvokerId()
+        {
+            return User.GetId();
         }
     }
 }
