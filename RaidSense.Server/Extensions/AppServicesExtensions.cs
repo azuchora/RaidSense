@@ -15,8 +15,6 @@ namespace RaidSense.Server.Extensions
             services.AddScoped<IMapRepository, MapRepository>();
             services.AddScoped<IMapAccessRepository, MapAccessRepository>();
             services.AddScoped<IUserMapRepository, UserMapRepository>();
-            services.AddScoped<IBaseRepository, BaseRepository>();
-            services.AddScoped<IPlayerRepository, PlayerRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
@@ -30,8 +28,6 @@ namespace RaidSense.Server.Extensions
             services.AddScoped<IRustMapService, RustMapService>();
             services.AddScoped<IMapAccessService, MapAccessService>();
             services.AddScoped<IUserMapService, UserMapService>();
-            services.AddScoped<IBaseService, BaseService>();
-            services.AddScoped<IPlayerService, PlayerService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAuthorizationHandler, MapAccessHandler>();
 

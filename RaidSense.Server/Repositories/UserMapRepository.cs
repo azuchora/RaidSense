@@ -14,7 +14,6 @@ namespace RaidSense.Server.Repositories
             var query = GetQueryable();
             return await query
                 .Include(um => um.Map)
-                .Include(um => um.Bases)
                 .Include(um => um.MapUsers)
                     .ThenInclude(mu => mu.User)
                 .SingleOrDefaultAsync(um => um.Id == id);
@@ -25,7 +24,6 @@ namespace RaidSense.Server.Repositories
             return await GetQueryable()
                 .Where(um => ids.Contains(um.Id))
                 .Include(um => um.Map)
-                .Include(um => um.Bases)
                 .Include(um => um.MapUsers)
                     .ThenInclude(mu => mu.User)
                 .ToListAsync();

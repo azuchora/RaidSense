@@ -1,8 +1,6 @@
-﻿using RaidSense.Server.Dtos.BattleMetrics.Players;
-using RaidSense.Server.Dtos.BattleMetrics.Server;
+﻿using RaidSense.Server.Dtos.BattleMetrics.Server;
 using RaidSense.Server.Interfaces.Services;
 using RaidSense.Server.Mappers;
-using RaidSense.Server.Models.Battlemetrics;
 using System.Net.Http.Headers;
 
 namespace RaidSense.Server.Services
@@ -19,13 +17,6 @@ namespace RaidSense.Server.Services
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiToken);
             }
-        }
-
-        public Task<BmPlayerDto?> GetPlayerDetailsAsync(string playerId)
-        {
-            // var url = $"https://api.battlemetrics.com/players/{playerId}";
-            // var response = await GetAsync<BmPlayerResponseDto>(url);
-            throw new NotImplementedException();
         }
 
         public async Task<BmServerDto?> GetServerDetailsAsync(string serverId)

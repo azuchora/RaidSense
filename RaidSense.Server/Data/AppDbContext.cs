@@ -12,10 +12,6 @@ namespace RaidSense.Server.Data
         public DbSet<UserMap> UserMaps { get; set; }
         public DbSet<MapUser> MapUsers { get; set; }
         public DbSet<RustServer> Servers { get; set; }
-        public DbSet<Base> Bases { get; set; }
-        public DbSet<Player> Players { get; set; }
-        public DbSet<BasePlayer> BasePlayers { get; set; }
-        public DbSet<Photo> Photos { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         
         protected override void OnModelCreating(ModelBuilder builder)
@@ -55,33 +51,6 @@ namespace RaidSense.Server.Data
                 .WithMany(m => m.Servers)
                 .HasForeignKey(rs => rs.MapId)
                 .OnDelete(DeleteBehavior.SetNull);
-
-            builder.Entity<Base>()
-                .HasOne(b => b.Map)
-                .WithMany(um => um.Bases)
-                .HasForeignKey(b => b.MapId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<BasePlayer>()
-                .HasKey(bp => new { bp.BaseId, bp.PlayerId });
-
-            builder.Entity<BasePlayer>()
-                .HasOne(bp => bp.Base)
-                .WithMany(b => b.BasePlayers)
-                .HasForeignKey(bp => bp.BaseId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<BasePlayer>()
-                .HasOne(bp => bp.Player)
-                .WithMany(p => p.BasePlayers)
-                .HasForeignKey(bp => bp.PlayerId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<Photo>()
-                .HasOne(p => p.Base)
-                .WithMany(b => b.Photos)
-                .HasForeignKey(p => p.BaseId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<RefreshToken>()
                 .HasOne(rt => rt.User)

@@ -1,5 +1,4 @@
-﻿using RaidSense.Server.Dtos.Bases;
-using RaidSense.Server.Dtos.RustMaps;
+﻿using RaidSense.Server.Dtos.RustMaps;
 
 namespace RaidSense.Server.Dtos.Maps
 {
@@ -9,6 +8,5 @@ namespace RaidSense.Server.Dtos.Maps
         public string OwnerId { get; set; } = string.Empty;
         public RustMapDto? Map { get; set; }
         public List<MapUserDto>? MapUsers { get; set; }
-        public List<BaseDto>? Bases { get; set; }
     }
 }
