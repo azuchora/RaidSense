@@ -7,20 +7,50 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RaidSense.Server", "RaidSen
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "raidsense.client", "raidsense.client\raidsense.client.esproj", "{CA572C17-7B85-44FE-9047-1568508B2BB0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaidSense.Server.Tests", "RaidSense.Server.Tests\RaidSense.Server.Tests.csproj", "{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Debug|x64.Build.0 = Debug|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Debug|x86.Build.0 = Debug|Any CPU
 		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Release|x64.ActiveCfg = Release|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Release|x64.Build.0 = Release|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Release|x86.ActiveCfg = Release|Any CPU
+		{5516BD28-6684-493F-A30E-1E5530ABAA4F}.Release|x86.Build.0 = Release|Any CPU
 		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Debug|x64.ActiveCfg = Debug|x64
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Debug|x86.ActiveCfg = Debug|x86
 		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Release|x64.ActiveCfg = Release|x64
+		{CA572C17-7B85-44FE-9047-1568508B2BB0}.Release|x86.ActiveCfg = Release|x86
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Debug|x64.Build.0 = Debug|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Debug|x86.Build.0 = Debug|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Release|x64.ActiveCfg = Release|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Release|x64.Build.0 = Release|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Release|x86.ActiveCfg = Release|Any CPU
+		{8BE217E9-1332-4385-B0F2-7B4A29FCECCB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
