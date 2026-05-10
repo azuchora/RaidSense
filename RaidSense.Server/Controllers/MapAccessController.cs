@@ -39,7 +39,7 @@ namespace RaidSense.Server.Controllers
         public async Task<IActionResult> RevokeAccess([FromRoute] string userId, int mapId)
         {
             await _mapUserService.RevokeAccessAsync(GetInvokerId(), userId, mapId);
-            return Ok();
+            return NoContent();
         }
 
         private string GetInvokerId()

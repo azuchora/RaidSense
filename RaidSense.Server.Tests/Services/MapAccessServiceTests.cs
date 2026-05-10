@@ -111,7 +111,6 @@ public class MapAccessServiceTests
     {
         var invokerId = "invoker";
         var targetId = "user-1";
-
         var mapId = 1;
 
         _repoMock
@@ -157,11 +156,10 @@ public class MapAccessServiceTests
         var act = () => _service.GrantAccessAsync(invokerId, targetId, mapId);
 
         await act.Should().ThrowAsync<ConflictException>();
-
     }
 
     [Fact]
-    public async Task GrantAccessAsync_ShouldAddViewer_WhenInvokerIsAdminAndUserHasNoAccess()
+    public async Task GrantAccessAsync_ShouldAddViewer_WhenInvokerIsAdminAndTargetHasNoAccess()
     {
         var invokerId = "invoker";
         var targetId = "user-1";
@@ -189,4 +187,250 @@ public class MapAccessServiceTests
     // -------------------------
     // RevokeAccessAsync
     // -------------------------
+
+    [Fact]
+    public async Task RevokeAccessAsync_ShouldThrowForbidden_WhenInvokerIsSameAsTargetUser()
+    {
+        var userId = "user-1";
+        var mapId = 1;
+
+        var act = () => _service.RevokeAccessAsync(userId, userId, mapId);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task RevokeAccessAsync_ShouldThrowForbidden_WhenInvokerHasNoAccess()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync((MapUser?)null);
+
+        var act = () => _service.RevokeAccessAsync(invokerId, targetId, mapId);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task RevokeAccessAsync__ShouldThrowForbidden_WhenInvokerIsNotAdmin()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync(CreateMapUser(invokerId, mapId, MapRole.Viewer));
+
+        var act = () => _service.RevokeAccessAsync(invokerId, targetId, mapId);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task RevokeAccessAsync_ShouldDoNothing_WhenTargetHasNoAccess()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync(CreateMapUser(invokerId, mapId, MapRole.Admin));
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(targetId, mapId))
+            .ReturnsAsync((MapUser?)null);
+
+        var act = () => _service.RevokeAccessAsync(invokerId, targetId, mapId);
+
+        await act.Should().NotThrowAsync();
+
+        _repoMock.Verify(r => r.DeleteAsync(It.IsAny<MapUser>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task RevokeAccessAsync_ShouldThrowForbidden_WhenTargetIsOwner()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync(CreateMapUser(invokerId, mapId, MapRole.Admin));
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(targetId, mapId))
+            .ReturnsAsync(CreateMapUser(targetId, mapId, MapRole.Owner));
+
+        var act = () => _service.RevokeAccessAsync(invokerId, targetId, mapId);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task RevokeAccessAsync_ShouldThrowForbidden_WhenInvokerRoleEqualsTargetRole()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync(CreateMapUser(invokerId, mapId, MapRole.Admin));
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(targetId, mapId))
+            .ReturnsAsync(CreateMapUser(targetId, mapId, MapRole.Admin));
+
+        var act = () => _service.RevokeAccessAsync(invokerId, targetId, mapId);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task RevokeAccessAsync_ShouldDelete_WhenValidRequest()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync(CreateMapUser(invokerId, mapId, MapRole.Admin));
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(targetId, mapId))
+            .ReturnsAsync(CreateMapUser(targetId, mapId, MapRole.Viewer));
+
+        var act = () => _service.RevokeAccessAsync(invokerId, targetId, mapId);
+
+        await act.Should().NotThrowAsync();
+
+        _repoMock.Verify(r => r.DeleteAsync(It.IsAny<MapUser>()), Times.Once);
+    }
+
+    // -------------------------
+    // UpdateRoleAsync
+    // -------------------------
+
+    [Fact]
+    public async Task UpdateRoleAsync_ShouldThrowForbidden_WhenInvokerIsSameAsTargetUser()
+    {
+        var userId = "user-1";
+        var mapId = 1;
+
+        var act = () => _service.UpdateRoleAsync(userId, userId, mapId, MapRole.Admin);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task UpdateRoleAsync_ShouldThrowForbidden_WhenInvokerHasNoAccess()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync((MapUser?)null);
+
+        var act = () => _service.UpdateRoleAsync(invokerId, targetId, mapId, MapRole.Admin);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task UpdateRoleAsync_ShouldThrowForbidden_WhenInvokerIsNotAdmin()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync(CreateMapUser(invokerId, mapId, MapRole.Viewer));
+
+        var act = () => _service.UpdateRoleAsync(invokerId, targetId, mapId, MapRole.Admin);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task UpdateRoleAsync_ShouldThrowForbidden_WhenTargetHasNoAccess()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync(CreateMapUser(invokerId, mapId, MapRole.Admin));
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(targetId, mapId))
+            .ReturnsAsync((MapUser?)null);
+
+        var act = () => _service.UpdateRoleAsync(invokerId, targetId, mapId, MapRole.Admin);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Theory]
+    [InlineData(MapRole.Admin, MapRole.Viewer, MapRole.Owner)]   // new role owner
+    [InlineData(MapRole.Admin, MapRole.Admin, MapRole.Viewer)]   // equal roles
+    [InlineData(MapRole.Admin, MapRole.Owner, MapRole.Viewer)]    // target is owner
+    public async Task UpdateRoleAsync_ShouldThrowForbidden_ForRoleRules(
+        MapRole invokerRole,
+        MapRole targetRole,
+        MapRole newRole)
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync(CreateMapUser(invokerId, mapId, invokerRole));
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(targetId, mapId))
+            .ReturnsAsync(CreateMapUser(targetId, mapId, targetRole));
+
+        var act = () => _service.UpdateRoleAsync(invokerId, targetId, mapId, newRole);
+
+        await act.Should().ThrowAsync<ForbiddenException>();
+    }
+
+    [Fact]
+    public async Task UpdateRoleAsync_ShouldUpdateRole_WhenValidRequest()
+    {
+        var invokerId = "invoker";
+        var targetId = "user-1";
+        var mapId = 1;
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(invokerId, mapId))
+            .ReturnsAsync(CreateMapUser(invokerId, mapId, MapRole.Admin));
+
+        _repoMock
+            .Setup(r => r.GetMapUserAsync(targetId, mapId))
+            .ReturnsAsync(CreateMapUser(targetId, mapId, MapRole.Viewer));
+
+        var act = () => _service.UpdateRoleAsync(invokerId, targetId, mapId, MapRole.Editor);
+
+        await act.Should().NotThrowAsync();
+
+        _repoMock.Verify(r => r.UpdateAsync(It.Is<MapUser>(m =>
+            m.Role == MapRole.Editor &&
+            m.UserId == targetId &&
+            m.MapId == mapId
+        )), Times.Once);
+    }
 }

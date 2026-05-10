@@ -12,6 +12,28 @@ namespace RaidSense.Server.Services
             _mapAccessRepo = mapAccessRepo;
         }
 
+        public Task EnsureViewerAsync(string userId, int mapId) =>
+            EnsureHasRoleAsync(userId, mapId, MapRole.Viewer);
+
+        public Task EnsureEditorAsync(string userId, int mapId) =>
+            EnsureHasRoleAsync(userId, mapId, MapRole.Editor);
+
+        public Task EnsureAdminAsync(string userId, int mapId) =>
+            EnsureHasRoleAsync(userId, mapId, MapRole.Admin);
+
+        public Task EnsureOwnerAsync(string userId, int mapId) =>
+            EnsureHasRoleAsync(userId, mapId, MapRole.Owner);
+
+        public async Task EnsureHasRoleAsync(string userId, int mapId, MapRole requiredRole)
+        {
+            var user = await GetMapUserAsync(userId, mapId);
+            if (user is null)
+                throw new ForbiddenException("No access to this map");
+
+            if (user.Role < requiredRole)
+                throw new ForbiddenException("Insufficient permission");
+        }
+
         public async Task GrantAccessAsync(string invokerId, string userId, int userMapId)
         {
             EnsureNotInvoker(invokerId, userId);
@@ -41,10 +63,17 @@ namespace RaidSense.Server.Services
             var invoker = await GetMapUserOrThrowAsync(invokerId, userMapId);
             EnsureAdmin(invoker);
 
-            var mapUser = await GetMapUserOrThrowAsync(userId, userMapId);
-            ValidateRoleRevoke(invoker, mapUser);
+            var target = await GetMapUserAsync(userId, userMapId);
 
-            await _mapAccessRepo.DeleteAsync(mapUser);
+            if (target is null) return;
+
+            if (target.Role == MapRole.Owner)
+                throw new ForbiddenException("Cannot revoke owner");
+
+            if (invoker.Role <= target.Role)
+                throw new ForbiddenException("Cannot revoke user with equal or higher role");
+
+            await _mapAccessRepo.DeleteAsync(target);
         }
 
         public async Task UpdateRoleAsync(string invokerId, string userId, int userMapId, MapRole newRole)
@@ -54,12 +83,23 @@ namespace RaidSense.Server.Services
             var invoker = await GetMapUserOrThrowAsync(invokerId, userMapId);
             EnsureAdmin(invoker);
 
-            var mapUser = await GetMapUserOrThrowAsync(userId, userMapId);
-            ValidateRoleUpdate(invoker, mapUser, newRole);
+            var target = await GetMapUserOrThrowAsync(userId, userMapId);
 
-            mapUser.Role = newRole;
+            if (target.Role == MapRole.Owner)
+                throw new ForbiddenException("Cannot modify owner roles");
 
-            await _mapAccessRepo.UpdateAsync(mapUser);
+            if (newRole == MapRole.Owner)
+                throw new ForbiddenException("Cannot assign Owner role");
+
+            if (newRole >= invoker.Role)
+                throw new ForbiddenException("Cannot assign higher role or equal than your own");
+
+            if (invoker.Role <= target.Role)
+                throw new ForbiddenException("Cannot modify user with higher or equal role");
+
+            target.Role = newRole;
+
+            await _mapAccessRepo.UpdateAsync(target);
         }
 
         public async Task<bool> HasRoleAsync(string userId, int mapId, MapRole minimumRole)
@@ -68,28 +108,6 @@ namespace RaidSense.Server.Services
 
             return mapUser?.Role >= minimumRole;
         }
-
-         public async Task EnsureHasRoleAsync(string userId, int mapId, MapRole requiredRole)
-        {
-            var user = await GetMapUserAsync(userId, mapId);
-            if (user is null)
-                throw new ForbiddenException("No access to this map");
-
-            if (user.Role < requiredRole)
-                throw new ForbiddenException("Insufficient permission");
-        }
-
-        public Task EnsureViewerAsync(string userId, int mapId) =>
-            EnsureHasRoleAsync(userId, mapId, MapRole.Viewer);
-
-        public Task EnsureEditorAsync(string userId, int mapId) =>
-            EnsureHasRoleAsync(userId, mapId, MapRole.Editor);
-
-        public Task EnsureAdminAsync(string userId, int mapId) =>
-            EnsureHasRoleAsync(userId, mapId, MapRole.Admin);
-
-        public Task EnsureOwnerAsync(string userId, int mapId) =>
-            EnsureHasRoleAsync(userId, mapId, MapRole.Owner);
 
         public async Task AssignOwnerAsync(string userId, int mapId)
         {
@@ -127,32 +145,6 @@ namespace RaidSense.Server.Services
         {
             if(invokerId == userId) 
                 throw new ForbiddenException("You cannot modify your own roles");
-        }
-
-        private void ValidateRoleUpdate(MapUser invoker, MapUser target, MapRole newRole)
-        {
-            if(target.Role == MapRole.Owner)
-                throw new ForbiddenException("Cannot modify owner roles");
-
-            if (newRole == MapRole.Owner) 
-                throw new ForbiddenException("Cannot assign Owner role");
-
-            if(newRole >= invoker.Role)
-                throw new ForbiddenException("Cannot assign higher role than your own");
-
-            if(invoker.Role <= target.Role)
-                throw new ForbiddenException("Cannot modify user with higher role");   
-        }
-
-        private void ValidateRoleRevoke(MapUser invoker, MapUser target)
-        {
-            if (target.Role == MapRole.Owner)
-                throw new ForbiddenException("Cannot revoke owner");
-
-            if (invoker.Role <= target.Role)
-            {
-               throw new ForbiddenException("Cannot revoke user with equal or higher role"); 
-            }
         }
 
         private void EnsureAdmin(MapUser invoker)
